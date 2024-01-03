@@ -25,7 +25,10 @@ SECRET_KEY = "django-insecure-w=ottey-zaj5-jdff*-szu_+z@9bd64y6s2$rm(=5srn4da7vn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["WafflePedia-env.eba-wjpwvtcu.ap-northeast-2.elasticbeanstalk.com"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "WafflePedia-env.eba-wjpwvtcu.ap-northeast-2.elasticbeanstalk.com",
+]
 
 
 # Application definition
