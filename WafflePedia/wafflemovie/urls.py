@@ -10,9 +10,15 @@ router.register("list", UserViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
+
+    #test
+    path("test/", MyProtectedView.as_view()),
+
     # for login/logout
     path("auth/", include("dj_rest_auth.urls")),
     path('auth/token/', CookieTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/token/refresh/', CookieTokenRefreshView.as_view(), name='token_refresh'),
+
     # for registration
     path("auth/register/", include("dj_rest_auth.registration.urls")),
     # path("auth/", include("allauth.urls")),

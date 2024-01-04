@@ -1,11 +1,8 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
-from rest_framework.views import APIView
 from .serializers import *
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
 
-# from django.conf import settings
 from .models import WaffleUser
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -13,11 +10,12 @@ from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.google import views as google_view
 from allauth.socialaccount.providers.kakao import views as kakao_view
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from django.http import JsonResponse
 import requests
 from rest_framework import status
 from json.decoder import JSONDecodeError
-
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.views import APIView
 # 환경변수 사용
 import os, environ
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -32,17 +30,6 @@ class CookieTokenObtainPairView(TokenObtainPairView):
 
         access_token = response_data.get('access')
         refresh_token = response_data.get('refresh')
-        print(request.headers)
-        #print("Access Token:", access_token)  # Temporary print statement
-        #print("Refresh Token:", refresh_token)
-
-        if access_token:
-                response.set_cookie(
-                    'access_token',
-                    access_token,
-                    httponly=True,  # Recommended for security
-                    samesite='Lax'  # Recommended for CSRF protection
-                )
 
         if refresh_token:
             response.set_cookie(
@@ -52,19 +39,43 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 samesite='Lax'  # Recommended for CSRF protection
             )
 
+        # Modify the response data to only include the access token
+        response_data = {'access': access_token}
+        print(request.headers)
+
+        return JsonResponse(response_data)
+
+
+class CookieTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        # Extract the refresh token from the cookie
+        refresh = request.COOKIES.get('refresh_token')
+        if not refresh:
+            return JsonResponse({'detail': 'No refresh token provided'}, status=401)
+
+        # Set the refresh token in the request data for TokenRefreshView
+        request.data['refresh'] = refresh
+
+        # Call the base class method to get a new access token
+        response_data = super().post(request, *args, **kwargs).data
+
+        access_token = response_data.get('access')
+
+        # Create a response
+        response = JsonResponse({'access': access_token})
+
         return response
 
 
+class MyProtectedView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
-# class CookieTokenRefreshView(TokenRefreshView):
-#     def post(self, request, *args, **kwargs):
-#         # The refresh token is automatically included in request.COOKIES
-#         request.data['refresh'] = request.COOKIES.get('refresh_token')
-#         return super().post(request, *args, **kwargs)
-
-
-
-
+    def get(self, request):
+        print("Headers:", request.headers)
+        response = JsonResponse({"message": "You are authenticated"})
+        print("Response:", response.content.decode())
+        return response
 
 
 state = os.environ.get("STATE")
