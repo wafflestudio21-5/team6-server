@@ -11,6 +11,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.google import views as google_view
+from allauth.socialaccount.providers.kakao import views as kakao_view
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from django.http import JsonResponse
 import requests
@@ -18,11 +19,12 @@ from rest_framework import status
 from json.decoder import JSONDecodeError
 
 # 환경변수 사용
-from WafflePedia import settings
+import os, environ
 
-state = settings.STATE
+state = os.environ.get("STATE")
 BASE_URL = "http://127.0.0.1:8000/"
 GOOGLE_CALLBACK_URI = BASE_URL + "auth/google/callback/"
+KAKAO_CALLBACK_URI = BASE_URL + "auth/kakao/callback/"
 
 
 def google_login(request):
@@ -30,15 +32,15 @@ def google_login(request):
     Code Request
     """
     scope = "https://www.googleapis.com/auth/userinfo.email"
-    client_id = settings.SOCIAL_AUTH_GOOGLE_CLIENT_ID
+    client_id = os.environ.get("SOCIAL_AUTH_GOOGLE_CLIENT_ID")
     return redirect(
         f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&redirect_uri={GOOGLE_CALLBACK_URI}&scope={scope}"
     )
 
 
 def google_callback(request):
-    client_id = settings.SOCIAL_AUTH_GOOGLE_CLIENT_ID
-    client_secret = settings.SOCIAL_AUTH_GOOGLE_SECRET
+    client_id = os.environ.get("SOCIAL_AUTH_GOOGLE_CLIENT_ID")
+    client_secret = os.environ.get("SOCIAL_AUTH_GOOGLE_SECRET")
     code = request.GET.get("code")
     """
     Access Token Request
@@ -103,9 +105,57 @@ def google_callback(request):
         return JsonResponse(accept_json)
 
 
+def kakao_login(request):
+    client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
+    return redirect(
+        f"https://kauth.kakao.com/oauth/authorize?client_id={client_id}&redirect_uri={KAKAO_CALLBACK_URI}&response_type=code"
+    )
+
+
+def kakao_callback(request):
+    client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
+    code = request.GET.get("code")
+
+    # code로 access token 요청
+    token_request = requests.get(
+        f"https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id={client_id}&redirect_uri={KAKAO_CALLBACK_URI}&code={code}"
+    )
+    token_response_json = token_request.json()
+
+    # 에러 발생 시 중단
+    error = token_response_json.get("error", None)
+    if error is not None:
+        raise JSONDecodeError(error)
+
+    access_token = token_response_json.get("access_token")
+    # access token으로 카카오톡 프로필 요청
+    profile_request = requests.post(
+        "https://kapi.kakao.com/v2/user/me",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    profile_json = profile_request.json()
+
+    kakao_account = profile_json.get("kakao_account")
+
+    data = {"access_token": access_token, "code": code}
+    accept = requests.post(f"{BASE_URL}auth/kakao/login/finish/", data=data)
+    accept_status = accept.status_code
+    if accept_status != 200:
+        return JsonResponse({"err_msg": "failed to signup"}, status=accept_status)
+    accept_json = accept.json()
+    accept_json.pop("user", None)
+    return JsonResponse(accept_json)
+
+
 class GoogleLogin(SocialLoginView):
     adapter_class = google_view.GoogleOAuth2Adapter
     callback_url = GOOGLE_CALLBACK_URI
+    client_class = OAuth2Client
+
+
+class KakaoLogin(SocialLoginView):
+    adapter_class = kakao_view.KakaoOAuth2Adapter
+    callback_url = KAKAO_CALLBACK_URI
     client_class = OAuth2Client
 
 
