@@ -20,6 +20,52 @@ from json.decoder import JSONDecodeError
 
 # 환경변수 사용
 import os, environ
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenRefreshView
+from django.http import JsonResponse
+
+
+class CookieTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response_data = super().post(request, *args, **kwargs).data
+        response = JsonResponse(response_data)
+
+        access_token = response_data.get('access')
+        refresh_token = response_data.get('refresh')
+        print(request.headers)
+        #print("Access Token:", access_token)  # Temporary print statement
+        #print("Refresh Token:", refresh_token)
+
+        if access_token:
+                response.set_cookie(
+                    'access_token',
+                    access_token,
+                    httponly=True,  # Recommended for security
+                    samesite='Lax'  # Recommended for CSRF protection
+                )
+
+        if refresh_token:
+            response.set_cookie(
+                'refresh_token',
+                refresh_token,
+                httponly=True,  # Recommended for security
+                samesite='Lax'  # Recommended for CSRF protection
+            )
+
+        return response
+
+
+
+# class CookieTokenRefreshView(TokenRefreshView):
+#     def post(self, request, *args, **kwargs):
+#         # The refresh token is automatically included in request.COOKIES
+#         request.data['refresh'] = request.COOKIES.get('refresh_token')
+#         return super().post(request, *args, **kwargs)
+
+
+
+
+
 
 state = os.environ.get("STATE")
 BASE_URL = "http://127.0.0.1:8000/"

@@ -12,6 +12,7 @@ urlpatterns = [
     path("", include(router.urls)),
     # for login/logout
     path("auth/", include("dj_rest_auth.urls")),
+    path('auth/token/', CookieTokenObtainPairView.as_view(), name='token_obtain_pair'),
     # for registration
     path("auth/register/", include("dj_rest_auth.registration.urls")),
     # path("auth/", include("allauth.urls")),
