@@ -26,6 +26,7 @@ print(project_path)
 print(virtualenv_path)
 print(sys.path)
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "WafflePedia.settings")
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "WafflePedia.settings")
+os.environ["DJANGO_SETTINGS_MODULE"] = "WafflePedia.settings"
 
 application = get_wsgi_application()
