@@ -42,6 +42,8 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             )
 
         print(response.content)
+        print(response.cookies)
+        print("\nHeader:", response.headers)
 
         # return JsonResponse(response_data)
         return response
