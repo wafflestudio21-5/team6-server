@@ -1,4 +1,4 @@
-name: CI-CD pipeline to AWS
+name: CI-CD pipeline to AWS (test)
 env:
   EB_S3_BUCKET_NAME: "elasticbeanstalk-ap-northeast-2-706612987643"
   EB_APPLICATION_NAME: "wafflepedia"
