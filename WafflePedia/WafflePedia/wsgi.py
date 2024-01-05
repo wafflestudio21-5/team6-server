@@ -24,6 +24,7 @@ sys.path.append(virtualenv_path)
 print(root_path)
 print(project_path)
 print(virtualenv_path)
+print(sys.path)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "WafflePedia.settings")
 
