@@ -58,7 +58,7 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
-ROOT_URLCONF = "WafflePedia.urls"
+ROOT_URLCONF = "WafflePedia.WafflePedia.urls"
 
 TEMPLATES = [
     {
