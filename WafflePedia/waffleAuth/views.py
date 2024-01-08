@@ -169,24 +169,47 @@ def naver_callback(request):
     )
     profile_json = profile_request.json()
 
+    data = {"access_token": access_token, "code": code}
+    accept = requests.post(f"{BASE_URL}auth/naver/login/finish/", data=data)
+    return set_response(accept)
+
     # email 비교 로직
-    email = profile_json.get("response").get("email")
+    # email = profile_json.get("response").get("email")
 
-    if email is None:
-        return JsonResponse(
-            {"err_msg": "failed to get email"}, status=status.HTTP_400_BAD_REQUEST
-        )
+    # if email is None:
+    #     return JsonResponse(
+    #         {"err_msg": "failed to get email"}, status=status.HTTP_400_BAD_REQUEST
+    #     )
 
-    try:
-        user = User.objects.get(email=email)
-        data = {"access_token": access_token, "code": code}
-        accept = requests.post(f"{BASE_URL}auth/naver/login/finish/", data=data)
-        return set_response(accept)
+    # try:
+    #     user = User.objects.get(email=email)
+    #     data = {"access_token": access_token, "code": code}
+    #     accept = requests.post(f"{BASE_URL}auth/naver/login/finish/", data=data)
+    #     return set_response(accept)
+    #
+    # except User.DoesNotExist:
+    #     data = {"access_token": access_token, "code": code}
+    #     accept = requests.post(f"{BASE_URL}auth/naver/login/finish/", data=data)
+    #     return set_response(accept)
 
-    except User.DoesNotExist:
-        data = {"access_token": access_token, "code": code}
-        accept = requests.post(f"{BASE_URL}auth/naver/login/finish/", data=data)
-        return set_response(accept)
+
+REDIRECT_URI = BASE_URL + "auth/"
+
+
+def kakao_logout(request):
+    client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
+    return redirect(
+        f"https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri={REDIRECT_URI}"
+    )
+
+
+def naver_logout(request):
+    client_id = os.environ.get("SOCIAL_AUTH_NAVER_CLIENT_ID")
+    client_secret = os.environ.get("SOCIAL_AUTH_NAVER_SECRET")
+    access_token = request.GET.get("access_token")
+    return redirect(
+        f"https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id={client_id}&client_secret={client_secret}&access_token={access_token}&service_provider=NAVER"
+    )
 
 
 class KakaoLogin(SocialLoginView):
