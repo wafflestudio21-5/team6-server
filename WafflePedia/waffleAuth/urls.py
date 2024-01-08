@@ -22,4 +22,12 @@ urlpatterns = [
     ),
     # for registration
     path("register/", include("dj_rest_auth.registration.urls")),
+    # Kakao
+    path("kakao/login/", kakao_login, name="kakao_login"),
+    path("kakao/callback/", kakao_callback, name="kakao_callback"),
+    path("kakao/login/finish/", KakaoLogin.as_view(), name="kakao_login_todjango"),
+    # Naver
+    path("naver/login/", naver_login, name="naver_login"),
+    path("naver/callback/", naver_callback, name="naver_callback"),
+    path("naver/login/finish/", NaverLogin.as_view(), name="naver_login_todjango"),
 ]
