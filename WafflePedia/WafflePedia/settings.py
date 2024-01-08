@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "rest_framework",
     "corsheaders",
-    "sample",
+    "WafflePedia.sample",
 ]
 
 MIDDLEWARE = [
