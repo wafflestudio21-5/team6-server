@@ -34,7 +34,7 @@ urlpatterns = [
     path("auth/kakao/callback/", kakao_callback, name="kakao_callback"),
     path("auth/kakao/login/finish/", KakaoLogin.as_view(), name="kakao_login_todjango"),
     # Naver
-    path("naver/login", naver_login, name="naver_login"),
-    # path('naver/callback/', naver_callback, name='naver_callback'),
-    # path('naver/login/finish/', NaverLogin.as_view(), name='naver_login_todjango'),
+    path("auth/naver/login/", naver_login, name="naver_login"),
+    path("auth/naver/callback/", naver_callback, name="naver_callback"),
+    path("auth/naver/login/finish/", NaverLogin.as_view(), name="naver_login_todjango"),
 ]
