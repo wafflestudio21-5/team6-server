@@ -20,6 +20,10 @@ import os
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.http import JsonResponse
+from rest_framework_simplejwt.serializers import *
+import json
+import jwt
+from oauthlib.oauth2 import OAuth2Error
 
 
 class CookieTokenObtainPairView(TokenObtainPairView):
@@ -51,22 +55,28 @@ class CookieTokenObtainPairView(TokenObtainPairView):
 
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
-        # Extract the refresh token from the cookie
-        refresh = request.COOKIES.get("refresh_token")
-        if not refresh:
-            return JsonResponse({"detail": "No refresh token provided"}, status=401)
-
-        # Set the refresh token in the request data for TokenRefreshView
-        request.data["refresh"] = refresh
-
-        # Call the base class method to get a new access token
         response_data = super().post(request, *args, **kwargs).data
 
         access_token = response_data.get("access")
+        refresh_token = response_data.get("refresh")
 
-        # Create a response
-        response = JsonResponse({"access": access_token})
+        # Modify the response data to only include the access token
+        response_data = {"access": access_token}
+        response = JsonResponse(response_data)
 
+        if refresh_token:
+            response.set_cookie(
+                "refresh_token",
+                refresh_token,
+                httponly=True,  # Recommended for security
+                samesite="None",  # Recommended for CSRF protection
+            )
+
+        print(response.content)
+        print(response.cookies)
+        print("\nHeader:", response.headers)
+
+        # return JsonResponse(response_data)
         return response
 
 
@@ -85,6 +95,7 @@ state = os.environ.get("STATE")
 BASE_URL = "http://127.0.0.1:8000/"
 GOOGLE_CALLBACK_URI = BASE_URL + "auth/google/callback/"
 KAKAO_CALLBACK_URI = BASE_URL + "auth/kakao/callback/"
+NAVER_CALLBACK_URI = BASE_URL + "auth/naver/callback/"
 
 
 def google_login(request):
@@ -102,9 +113,10 @@ def google_callback(request):
     client_id = os.environ.get("SOCIAL_AUTH_GOOGLE_CLIENT_ID")
     client_secret = os.environ.get("SOCIAL_AUTH_GOOGLE_SECRET")
     code = request.GET.get("code")
-    """
-    Access Token Request
-    """
+    print("\ncode:",code)
+    state = "justrandomstring"
+
+    #token 발급 요청
     token_req = requests.post(
         f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type=authorization_code&redirect_uri={GOOGLE_CALLBACK_URI}&state={state}"
     )
@@ -113,9 +125,9 @@ def google_callback(request):
     if error is not None:
         raise JSONDecodeError(error)
     access_token = token_req_json.get("access_token")
-    """
-    Email Request
-    """
+    print("\naccess_token:", access_token)
+
+    #email request
     email_req = requests.get(
         f"https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={access_token}"
     )
@@ -124,11 +136,12 @@ def google_callback(request):
         return JsonResponse(
             {"err_msg": "failed to get email"}, status=status.HTTP_400_BAD_REQUEST
         )
+
     email_req_json = email_req.json()
     email = email_req_json.get("email")
-    """
-    Signup or Signin Request
-    """
+    print("\nemail:", email)
+
+
     try:
         user = WaffleUser.objects.get(email=email)
         # 기존에 가입된 유저의 Provider가 google이 아니면 에러 발생, 맞으면 로그인
@@ -152,17 +165,50 @@ def google_callback(request):
             return JsonResponse({"err_msg": "failed to signin"}, status=accept_status)
         accept_json = accept.json()
         accept_json.pop("user", None)
-        return JsonResponse(accept_json)
+
+        response_data = JsonResponse(accept_json)
+        content = response_data.content.decode('utf-8')  # Decode the response content
+        data = json.loads(content)
+        access_token=data.get("access")
+        refresh_token = data.get("refresh")
+
+        # Modify the response data to only include the access token
+        response_data = {"access": access_token}
+        response = JsonResponse(response_data)
+
+        if refresh_token:
+            response.set_cookie(
+                "refresh_token",
+                refresh_token,
+                httponly=True,  # Recommended for security
+                samesite="None",  # Recommended for CSRF protection
+            )
+
+        print("\nGoogle response content:",response.content)
+        print("\nGoogle response cookies:",response.cookies)
+        print("\nGoogle Header:", response.headers)
+
+        # return JsonResponse(response_data)
+        return response
+
     except WaffleUser.DoesNotExist:
         # 기존에 가입된 유저가 없으면 새로 가입
         data = {"access_token": access_token, "code": code}
         accept = requests.post(f"{BASE_URL}auth/google/login/finish/", data=data)
+        print("\naccept.headers:",accept.headers)
         accept_status = accept.status_code
         if accept_status != 200:
+            try:
+                # The code that's causing the error
+                accept_json = accept.json()
+            except Exception as e:
+                print("An error occurred:", e)
+
             return JsonResponse({"err_msg": "failed to signup"}, status=accept_status)
         accept_json = accept.json()
         accept_json.pop("user", None)
         return JsonResponse(accept_json)
+
 
 
 def kakao_login(request):
@@ -188,6 +234,7 @@ def kakao_callback(request):
         raise JSONDecodeError(error)
 
     access_token = token_response_json.get("access_token")
+
     # access token으로 카카오톡 프로필 요청
     profile_request = requests.post(
         "https://kapi.kakao.com/v2/user/me",
@@ -199,16 +246,63 @@ def kakao_callback(request):
 
     data = {"access_token": access_token, "code": code}
     accept = requests.post(f"{BASE_URL}auth/kakao/login/finish/", data=data)
+
     accept_status = accept.status_code
     if accept_status != 200:
         return JsonResponse({"err_msg": "failed to signup"}, status=accept_status)
     accept_json = accept.json()
     accept_json.pop("user", None)
-    return JsonResponse(accept_json)
+
+    response_data = JsonResponse(accept_json)
+    content = response_data.content.decode('utf-8')  # Decode the response content
+    data = json.loads(content)
+    access_token=data.get("access")
+    refresh_token = data.get("refresh")
+    print("\nmy access_token:", access_token)
+    print("\nmy refresh_token:", refresh_token)
+
+    # Modify the response data to only include the access token
+    response_data = {"access": access_token}
+    response = JsonResponse(response_data)
+
+    if refresh_token:
+        response.set_cookie(
+            "refresh_token",
+            refresh_token,
+            httponly=True,  # Recommended for security
+            samesite="None",  # Recommended for CSRF protection
+        )
+
+    print("\nKakao response content:",response.content)
+    print("\nKakao response cookies:",response.cookies)
+    print("\nKakao Header:", response.headers)
+
+    # return JsonResponse(response_data)
+    return response
+
+from allauth.socialaccount.providers.google.provider import GoogleProvider
+
+class CustomGoogleOAuth2Adapter(google_view.GoogleOAuth2Adapter):
+    provider_id = GoogleProvider.id
+    access_token_url = "https://accounts.google.com/o/oauth2/token"
+    authorize_url = "https://accounts.google.com/o/oauth2/auth"
+    profile_url = "https://www.googleapis.com/oauth2/v1/userinfo"
+
+    def complete_login(self, request, app, token, **kwargs):
+        print(request)
+        resp = requests.get(
+            self.profile_url,
+            params={"access_token": token.token, "alt": "json"},
+        )
+        resp.raise_for_status()
+        extra_data = resp.json()
+        print("???")
+        login = self.get_provider().sociallogin_from_response(request, extra_data)
+        return login
 
 
 class GoogleLogin(SocialLoginView):
-    adapter_class = google_view.GoogleOAuth2Adapter
+    adapter_class = CustomGoogleOAuth2Adapter
     callback_url = GOOGLE_CALLBACK_URI
     client_class = OAuth2Client
 
@@ -223,3 +317,10 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = WaffleUser.objects.all()
     serializer_class = UserSerializer
+
+
+def naver_login(request):
+    client_id = os.environ.get("SOCIAL_AUTH_NAVER_CLIENT_ID")
+    return redirect(
+        f"https://kauth.kakao.com/oauth/authorize?client_id={client_id}&redirect_uri={KAKAO_CALLBACK_URI}&response_type=code"
+    )
