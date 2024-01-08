@@ -13,13 +13,13 @@ urlpatterns = [
     # test
     path("test/", MyProtectedView.as_view()),
     # for token authentication
-    path("auth/", include("dj_rest_auth.urls")),
-    path("auth/token/", CookieTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("", include("dj_rest_auth.urls")),
+    path("token/", CookieTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path(
-        "auth/token/refresh/new/",
+        "token/refresh/new/",
         CookieTokenRefreshView.as_view(),
         name="token_refresh",
     ),
     # for registration
-    path("auth/register/", include("dj_rest_auth.registration.urls")),
+    path("register/", include("dj_rest_auth.registration.urls")),
 ]
