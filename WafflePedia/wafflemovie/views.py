@@ -7,6 +7,7 @@ from allauth.socialaccount.models import SocialAccount
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.google import views as google_view
 from allauth.socialaccount.providers.kakao import views as kakao_view
+from allauth.socialaccount.providers.naver import views as naver_view
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 import requests
 from rest_framework import status
@@ -322,5 +323,123 @@ class UserViewSet(viewsets.ModelViewSet):
 def naver_login(request):
     client_id = os.environ.get("SOCIAL_AUTH_NAVER_CLIENT_ID")
     return redirect(
-        f"https://kauth.kakao.com/oauth/authorize?client_id={client_id}&redirect_uri={KAKAO_CALLBACK_URI}&response_type=code"
+        f"https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id={client_id}&state={state}&redirect_uri={NAVER_CALLBACK_URI}"
     )
+
+
+def naver_callback(request):
+    client_id = os.environ.get("SOCIAL_AUTH_NAVER_CLIENT_ID")
+    client_secret = os.environ.get("SOCIAL_AUTH_NAVER_SECRET")
+    code = request.GET.get("code")
+    state_string = request.GET.get("state")
+
+    # code로 access token 요청
+    token_request = requests.get(
+        f"https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id={client_id}&client_secret={client_secret}&code={code}&state={state_string}"
+    )
+    token_response_json = token_request.json()
+    print(token_response_json)
+    error = token_response_json.get("error", None)
+    if error is not None:
+        raise JSONDecodeError(error)
+
+    access_token = token_response_json.get("access_token")
+
+
+    # access token으로 네이버 프로필 요청
+    profile_request = requests.post(
+        "https://openapi.naver.com/v1/nid/me",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    profile_json = profile_request.json()
+
+    email = profile_json.get("response").get("email")
+
+    if email is None:
+        return JsonResponse({'err_msg': 'failed to get email'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    try:
+        user = User.objects.get(email=email)
+        data = {'access_token': access_token, 'code': code}
+        # accept 에는 token 값이 json 형태로 들어온다({"key"}:"token value")
+        # 여기서 오는 key 값은 authtoken_token에 저장된다.
+        accept = requests.post(
+            f"{BASE_URL}auth/naver/login/finish/", data=data
+        )
+        # 만약 token 요청이 제대로 이루어지지 않으면 오류처리
+        if accept.status_code != 200:
+            return JsonResponse({"error": "Failed to Signin."}, status=accept.status_code)
+        accept_json = accept.json()
+        accept_json.pop("user", None)
+
+        response_data = JsonResponse(accept_json)
+        content = response_data.content.decode('utf-8')  # Decode the response content
+        data = json.loads(content)
+        access_token=data.get("access")
+        refresh_token = data.get("refresh")
+        print("\nmy access_token:", access_token)
+        print("\nmy refresh_token:", refresh_token)
+
+        # Modify the response data to only include the access token
+        response_data = {"access": access_token}
+        response = JsonResponse(response_data)
+
+        if refresh_token:
+            response.set_cookie(
+                "refresh_token",
+                refresh_token,
+                httponly=True,  # Recommended for security
+                samesite="None",  # Recommended for CSRF protection
+            )
+
+        print("\nNaver response content:",response.content)
+        print("\nNaver response cookies:",response.cookies)
+        print("\nNaver Header:", response.headers)
+
+        # return JsonResponse(response_data)
+        return response
+
+    except User.DoesNotExist:
+        data = {'access_token': access_token, 'code': code}
+        accept = requests.post(
+            f"{BASE_URL}auth/naver/login/finish/", data=data
+        )
+        # 만약 token 요청이 제대로 이루어지지 않으면 오류처리
+        if accept.status_code != 200:
+            return JsonResponse({"error": "Failed to SignUp."}, status=accept.status_code)
+        accept_json = accept.json()
+        accept_json.pop("user", None)
+
+        response_data = JsonResponse(accept_json)
+        content = response_data.content.decode('utf-8')  # Decode the response content
+        data = json.loads(content)
+        access_token=data.get("access")
+        refresh_token = data.get("refresh")
+        print("\nmy access_token:", access_token)
+        print("\nmy refresh_token:", refresh_token)
+
+        # Modify the response data to only include the access token
+        response_data = {"access": access_token}
+        response = JsonResponse(response_data)
+
+        if refresh_token:
+            response.set_cookie(
+                "refresh_token",
+                refresh_token,
+                httponly=True,  # Recommended for security
+                samesite="None",  # Recommended for CSRF protection
+            )
+
+        print("\nNaver response content:",response.content)
+        print("\nNaver response cookies:",response.cookies)
+        print("\nNaver Header:", response.headers)
+
+        # return JsonResponse(response_data)
+        return response
+
+
+class NaverLogin(SocialLoginView):
+    adapter_class = naver_view.NaverOAuth2Adapter
+    callback_url = NAVER_CALLBACK_URI
+    client_class = OAuth2Client
