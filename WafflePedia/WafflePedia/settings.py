@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.naver",
     # our app
     "waffleAuth",
+    "userprofile"
 ]
 
 MIDDLEWARE = [
