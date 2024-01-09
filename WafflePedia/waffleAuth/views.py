@@ -16,6 +16,7 @@ from rest_framework.views import APIView
 import os
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenBlacklistView
 from django.http import JsonResponse
 import json
 
@@ -196,6 +197,7 @@ def naver_callback(request):
 REDIRECT_URI = BASE_URL + "auth/"
 
 
+'''
 def kakao_logout(request):
     client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
     return redirect(
@@ -210,6 +212,33 @@ def naver_logout(request):
     return redirect(
         f"https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id={client_id}&client_secret={client_secret}&access_token={access_token}&service_provider=NAVER"
     )
+'''
+
+
+class KakaoLogout(TokenBlacklistView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+
+        client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
+        redirect(
+            f"https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri={REDIRECT_URI}"
+        )
+
+        return response
+
+
+class NaverLogout(TokenBlacklistView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+
+        client_id = os.environ.get("SOCIAL_AUTH_NAVER_CLIENT_ID")
+        client_secret = os.environ.get("SOCIAL_AUTH_NAVER_SECRET")
+        access_token = request.GET.get("access_token")
+        redirect(
+            f"https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id={client_id}&client_secret={client_secret}&access_token={access_token}&service_provider=NAVER"
+        )
+
+        return response
 
 
 class KakaoLogin(SocialLoginView):
