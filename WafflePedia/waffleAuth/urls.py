@@ -4,6 +4,7 @@ from rest_framework import urls
 from .views import *
 from rest_framework import routers
 
+
 # 유저리스트 (테스트용)
 router = routers.DefaultRouter()
 router.register("list", UserViewSet)
@@ -15,6 +16,7 @@ urlpatterns = [
     # for token authentication
     path("", include("dj_rest_auth.urls")),
     path("token/", CookieTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("token/logout/", TokenBlacklistView.as_view(), name="token_blacklist"),
     path(
         "token/refresh/new/",
         CookieTokenRefreshView.as_view(),

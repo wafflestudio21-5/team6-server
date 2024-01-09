@@ -11,6 +11,7 @@ import os
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenBlacklistView
 from django.http import JsonResponse
 
 
@@ -19,6 +20,8 @@ class CookieTokenObtainPairView(TokenObtainPairView):
         response_data = super().post(request, *args, **kwargs).data
         access_token = response_data.get("access")
         refresh_token = response_data.get("refresh")
+        print("\naccess token:", access_token)
+        print("\nrefresh token:", refresh_token)
 
         # Modify the response data to only include the access token
         response_data = {"access": access_token}
@@ -43,7 +46,7 @@ class CookieTokenRefreshView(TokenRefreshView):
         # Modify the response data to only include the access token
         response_data = {"access": access_token}
         response = JsonResponse(response_data)
-
+        print("\nnew refresh token:", refresh_token)
         if refresh_token:
             response.set_cookie(
                 "refresh_token",
