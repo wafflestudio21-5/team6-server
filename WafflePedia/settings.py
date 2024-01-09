@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +26,10 @@ SECRET_KEY = "django-insecure-w=ottey-zaj5-jdff*-szu_+z@9bd64y6s2$rm(=5srn4da7vn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["WafflePedia-env.eba-wjpwvtcu.ap-northeast-2.elasticbeanstalk.com"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "WafflePedia-env.eba-wjpwvtcu.ap-northeast-2.elasticbeanstalk.com",
+]
 
 
 # Application definition
@@ -40,6 +44,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "rest_framework",
     "corsheaders",
+    "sample",
 ]
 
 MIDDLEWARE = [
@@ -85,6 +90,9 @@ DATABASES = {
     }
 }
 
+# CORS_ALLOWED_ORIGINS
+CORS_ALLOWED_ORIGINS = ["*"]
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -121,6 +129,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = "static"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
