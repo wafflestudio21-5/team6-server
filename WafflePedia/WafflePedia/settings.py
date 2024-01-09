@@ -72,7 +72,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.kakao",
     "allauth.socialaccount.providers.naver",
     # our app
-    "waffleAuth",
+    "WafflePedia.waffleAuth",
 ]
 
 MIDDLEWARE = [
@@ -88,7 +88,7 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
-ROOT_URLCONF = "WafflePedia.urls"
+ROOT_URLCONF = "WafflePedia.WafflePedia.urls"
 
 TEMPLATES = [
     {
@@ -106,7 +106,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "WafflePedia.wsgi.application"
+WSGI_APPLICATION = "WafflePedia.WafflePedia.wsgi.application"
 
 
 # Database
