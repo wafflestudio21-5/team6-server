@@ -7,7 +7,7 @@ env:
   AWS_REGION_NAME: "ap-northeast-2" # ex) ap-northeast-2
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
