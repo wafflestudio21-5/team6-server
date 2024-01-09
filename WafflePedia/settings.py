@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "rest_framework",
     "corsheaders",
-    "WafflePedia.sample",
+    "sample",
 ]
 
 MIDDLEWARE = [
@@ -58,7 +58,7 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
-ROOT_URLCONF = "WafflePedia.WafflePedia.urls"
+ROOT_URLCONF = "WafflePedia.urls"
 
 TEMPLATES = [
     {
