@@ -3,6 +3,7 @@ from django.urls import path, include
 from rest_framework import urls
 from .views import *
 from rest_framework import routers
+from rest_framework_simplejwt.views import TokenBlacklistView
 
 # 유저리스트 (테스트용)
 router = routers.DefaultRouter()
@@ -20,6 +21,7 @@ urlpatterns = [
         CookieTokenRefreshView.as_view(),
         name="token_refresh",
     ),
+    path("token/logout/", TokenBlacklistView.as_view(), name="token_blacklist"),
     # for registration
     path("register/", include("dj_rest_auth.registration.urls")),
     # Kakao
