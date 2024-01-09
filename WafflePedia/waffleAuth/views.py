@@ -16,6 +16,7 @@ from rest_framework.views import APIView
 import os
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenBlacklistView
 from django.http import JsonResponse
 import json
 
@@ -87,6 +88,7 @@ def set_response(accept):
     accept_status = accept.status_code
     # not accepted
     if accept_status != 200:
+        print(accept)
         return JsonResponse({"err_msg": "failed to signup"}, status=accept_status)
 
     # accepted
@@ -97,6 +99,8 @@ def set_response(accept):
     data = json.loads(content)
     access_token = data.get("access")
     refresh_token = data.get("refresh")
+    print("\naccess token:", access_token)
+    print("\nrefresh token:", refresh_token)
 
     # response가 access token만 포함하도록 변경
     response_data = {"access": access_token}
@@ -138,6 +142,7 @@ def kakao_callback(request):
     profile_json = profile_request.json()
 
     kakao_account = profile_json.get("kakao_account")
+    print("\nprofile:", profile_json)
 
     data = {"access_token": access_token, "code": code}
     accept = requests.post(f"{BASE_URL}auth/kakao/login/finish/", data=data)
@@ -203,6 +208,32 @@ def kakao_logout(request):
     )
 
 
+class KakaoLogout(TokenBlacklistView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+
+        client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
+        redirect(
+            f"https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri={REDIRECT_URI}"
+        )
+
+        return response
+
+
+class NaverLogout(TokenBlacklistView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+
+        client_id = os.environ.get("SOCIAL_AUTH_NAVER_CLIENT_ID")
+        client_secret = os.environ.get("SOCIAL_AUTH_NAVER_SECRET")
+        access_token = request.GET.get("access_token")
+        redirect(
+            f"https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id={client_id}&client_secret={client_secret}&access_token={access_token}&service_provider=NAVER"
+        )
+
+        return response
+
+
 def naver_logout(request):
     client_id = os.environ.get("SOCIAL_AUTH_NAVER_CLIENT_ID")
     client_secret = os.environ.get("SOCIAL_AUTH_NAVER_SECRET")
@@ -210,6 +241,8 @@ def naver_logout(request):
     return redirect(
         f"https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id={client_id}&client_secret={client_secret}&access_token={access_token}&service_provider=NAVER"
     )
+
+
 
 
 class KakaoLogin(SocialLoginView):
