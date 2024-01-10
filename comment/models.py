@@ -9,13 +9,13 @@ class Comment(models.Model):
     created_by = models.ForeignKey(WaffleUser, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     content = models.TextField()
-    rating = models.OneToOneField(Rating, null=True, on_delete=models.SET_NULL)
+    rating = models.OneToOneField(Rating, null=True, blank=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     likes = GenericRelation('Like')
 
     def __str__(self):
-        return self.movie.title_ko + " - " + self.content[:20]
+        return self.created_by.nickname + ' - ' + self.movie.title_ko
 
 
 class Reply(models.Model):
@@ -27,7 +27,7 @@ class Reply(models.Model):
     likes = GenericRelation('Like')
 
     def __str__(self):
-        return str(self.comment.id) + " - " + self.content[:20]
+        return '(' + str(self.comment) + ')' + " - " + self.content[:20]
 
 
 class Like(models.Model):

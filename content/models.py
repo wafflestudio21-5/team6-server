@@ -29,7 +29,8 @@ class Genre(models.Model):
 
 
 class Rating(models.Model):
-    rating = [(i / 2, str(i / 2)) for i in range(1, 11)]
+    RATING_CHOICES = [(i / 2, str(i / 2)) for i in range(1, 11)]
+    rate = models.DecimalField(choices=RATING_CHOICES, max_digits=3, decimal_places=1, default=0.0)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(WaffleUser, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
@@ -70,11 +71,12 @@ class Role(models.Model):
 class State(models.Model):
     user = models.ForeignKey(WaffleUser, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
-    state = [
+    STATE_CHOICES = [
         ("want_to_watch", "want_to_watch"),
         ("watching", "watching"),
         ("not_interested", "not_interested")
     ]
+    user_state = models.CharField(choices=STATE_CHOICES, max_length=20, blank=True)
 
     def __str__(self):
-        return self.user.nickname + " - " + self.movie.title_ko
+        return self.movie.title_ko + " - " + self.user.nickname
