@@ -44,3 +44,17 @@ class Like(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     liked_object = GenericForeignKey()
+
+
+class State(models.Model):
+    user = models.ForeignKey(WaffleUser, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    STATE_CHOICES = [
+        ("want_to_watch", "Want to Watch"),
+        ("watching", "Watching"),
+        ("not_interested", "Not Interested")
+    ]
+    state = models.CharField(max_length=15, choices=STATE_CHOICES)
+
+    class Meta:
+        unique_together = ('user', 'movie')

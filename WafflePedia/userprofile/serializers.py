@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from waffleAuth.models import WaffleUser
-from .models import Movie, Comment, Like, Rating
+from .models import Movie, Comment, Like, Rating, State
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -50,7 +50,7 @@ class MovieSerializer(serializers.ModelSerializer):
             'screening'
         ]
 
-# serializers.py
+
 class UserRatingSerializer(serializers.ModelSerializer):
     movie = MovieSerializer(read_only=True)
 
@@ -58,3 +58,12 @@ class UserRatingSerializer(serializers.ModelSerializer):
         model = Rating
         fields = ['id', 'rating', 'movie', 'updated_at', 'created_by']
         depth = 1  # This will nest the movie information one level deep
+
+
+class StateSerializer(serializers.ModelSerializer):
+    movie = MovieSerializer(read_only=True)
+
+    class Meta:
+        model = State
+        fields = ['id', 'movie', 'state']
+
