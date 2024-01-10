@@ -1,15 +1,15 @@
-name: CI-CD pipeline to AWS
+name: CI-CD pipeline to AWS (test)
 env:
-  EB_S3_BUCKET_NAME: ["elasticbeanstalk-ap-northeast-2-706612987643"]
-  EB_APPLICATION_NAME: ["wafflepedia"]
-  EB_ENVIRONMENT_NAME: ["WafflePedia-env"] # 보통 앱 이름에 -env 형태로 자동 생성
+  EB_S3_BUCKET_NAME: "elasticbeanstalk-ap-northeast-2-706612987643"
+  EB_APPLICATION_NAME: "wafflepedia"
+  EB_ENVIRONMENT_NAME: "WafflePedia-env" # 보통 앱 이름에 -env 형태로 자동 생성
   DEPLOY_PACKAGE_NAME: "django-app-${{ github.sha }}.zip"
-  AWS_REGION_NAME: ["ap-northeast-2"] # ex) ap-northeast-2
+  AWS_REGION_NAME: "ap-northeast-2" # ex) ap-northeast-2
 
 on:
   push:
     branches:
-        - main
+      - main
 
 jobs:
   build:

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -73,6 +74,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.naver",
     # our app
     "waffleAuth",
+    "sample",
 ]
 
 MIDDLEWARE = [
@@ -172,19 +174,6 @@ REST_AUTH = {
     "JWT_AUTH_HTTPONLY": False,
 }
 
-# # Provider specific settings
-# SOCIALACCOUNT_PROVIDERS = {
-#     "google": {
-#         "SCOPE": [
-#             "profile",
-#             "email",
-#         ],
-#         "AUTH_PARAMS": {
-#             "access_type": "online",
-#         },
-#     }
-# }
-
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
 
@@ -203,8 +192,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = "static/"
+STATIC_ROOT = "static"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -214,3 +203,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CORS Setting
 CORS_ALLOW_ALL_ORIGINS = True
+
+# CORS_ALLOWED_ORIGINS
+CORS_ALLOWED_ORIGINS = ["*"]
