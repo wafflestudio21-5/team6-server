@@ -35,7 +35,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             response.set_cookie(
                 "refresh_token",
                 refresh_token,
-                httponly=True,
+                httponly=False,
                 samesite="None",
             )
 
@@ -56,7 +56,7 @@ class CookieTokenRefreshView(TokenRefreshView):
             response.set_cookie(
                 "refresh_token",
                 refresh_token,
-                httponly=True,
+                httponly=False,
                 samesite="None",
             )
 
@@ -68,6 +68,7 @@ state = os.environ.get("STATE")
 BASE_URL = os.environ.get("BASE_URL")
 KAKAO_CALLBACK_URI = BASE_URL + "auth/kakao/callback/"
 NAVER_CALLBACK_URI = BASE_URL + "auth/naver/callback/"
+REDIRECT_URI = BASE_URL + "auth/"
 
 
 def kakao_login(request):
@@ -110,7 +111,7 @@ def set_response(accept):
         response.set_cookie(
             "refresh_token",
             refresh_token,
-            httponly=True,
+            httponly=False,
             samesite="None",
         )
 
@@ -198,16 +199,6 @@ def naver_callback(request):
     #     return set_response(accept)
 
 
-REDIRECT_URI = BASE_URL + "auth/"
-
-
-def kakao_logout(request):
-    client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
-    return redirect(
-        f"https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri={REDIRECT_URI}"
-    )
-
-
 class KakaoLogout(TokenBlacklistView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
@@ -232,18 +223,6 @@ class NaverLogout(TokenBlacklistView):
         )
 
         return response
-
-
-def naver_logout(request):
-    client_id = os.environ.get("SOCIAL_AUTH_NAVER_CLIENT_ID")
-    client_secret = os.environ.get("SOCIAL_AUTH_NAVER_SECRET")
-    access_token = request.GET.get("access_token")
-    return redirect(
-        f"https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id={client_id}&client_secret={client_secret}&access_token={access_token}&service_provider=NAVER"
-    )
-
-
-
 
 class KakaoLogin(SocialLoginView):
     adapter_class = kakao_view.KakaoOAuth2Adapter
