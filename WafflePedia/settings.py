@@ -74,6 +74,8 @@ INSTALLED_APPS = [
     # our app
     "waffleAuth",
     "sample",
+    "comment",
+    "content",
 ]
 
 MIDDLEWARE = [
