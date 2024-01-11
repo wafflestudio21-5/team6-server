@@ -89,7 +89,6 @@ def set_response(accept):
     accept_status = accept.status_code
     # not accepted
     if accept_status != 200:
-        print(accept)
         return JsonResponse({"err_msg": "failed to signup"}, status=accept_status)
 
     # accepted
@@ -100,8 +99,6 @@ def set_response(accept):
     data = json.loads(content)
     access_token = data.get("access")
     refresh_token = data.get("refresh")
-    print("\naccess token:", access_token)
-    print("\nrefresh token:", refresh_token)
 
     # response가 access token만 포함하도록 변경
     response_data = {"access": access_token}
@@ -143,7 +140,6 @@ def kakao_callback(request):
     profile_json = profile_request.json()
 
     kakao_account = profile_json.get("kakao_account")
-    print("\nprofile:", profile_json)
 
     data = {"access_token": access_token, "code": code}
     accept = requests.post(f"{BASE_URL}auth/kakao/login/finish/", data=data)
