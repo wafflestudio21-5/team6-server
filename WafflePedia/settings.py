@@ -123,7 +123,7 @@ DATABASES = {
         "NAME": os.environ.get("DATABASE_NAME"),
         "USER": os.environ.get("DATABASE_USER"),
         "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
-        "HOST": "wafflepedia-env.eba-wjpwvtcu.ap-northeast-2.elasticbeanstalk.com",
+        "HOST": "wafflepedia-database-1.caodvgbnfosy.ap-northeast-2.rds.amazonaws.com",
         "PORT": "3306",
         "OPTIONS": {"init_command": "SET sql_mode='STRICT_TRANS_TABLES'"},
     }
