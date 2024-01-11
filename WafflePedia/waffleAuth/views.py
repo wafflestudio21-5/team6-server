@@ -19,9 +19,29 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.views import TokenBlacklistView
 from django.http import JsonResponse
 import json
+from dj_rest_auth.registration.views import RegisterView
+from rest_framework_simplejwt.serializers import TokenBlacklistSerializer
+from dj_rest_auth.app_settings import api_settings
 
 
-# token
+class CustomRegisterView(RegisterView):
+    def get_response_data(self, user):
+        response_data = super().get_response_data(user)
+
+        if api_settings.USE_JWT and hasattr(self, 'refresh_token'):
+            try:
+                # Blacklist the refresh token
+                self.refresh_token.blacklist()
+            except Exception as e:
+                # Handle exceptions (logging, custom error message, etc.)
+                pass
+
+        return response_data
+
+
+
+
+
 class CookieTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         response_data = super().post(request, *args, **kwargs).data
