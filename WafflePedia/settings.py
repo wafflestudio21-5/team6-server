@@ -178,7 +178,7 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
 }
 # AUTH/allauth settings
-SITE_ID = 1
+SITE_ID = 2
 REST_USE_JWT = True
 
 REST_AUTH = {
