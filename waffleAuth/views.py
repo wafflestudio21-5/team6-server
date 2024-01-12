@@ -35,7 +35,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             response.set_cookie(
                 "refresh_token",
                 refresh_token,
-                httponly=True,
+                httponly=False,
                 samesite="None",
             )
 
@@ -56,7 +56,7 @@ class CookieTokenRefreshView(TokenRefreshView):
             response.set_cookie(
                 "refresh_token",
                 refresh_token,
-                httponly=True,
+                httponly=False,
                 samesite="None",
             )
 
@@ -68,6 +68,7 @@ state = os.environ.get("STATE")
 BASE_URL = os.environ.get("BASE_URL")
 KAKAO_CALLBACK_URI = BASE_URL + "auth/kakao/callback/"
 NAVER_CALLBACK_URI = BASE_URL + "auth/naver/callback/"
+REDIRECT_URI = BASE_URL + "auth/"
 
 
 def kakao_login(request):
@@ -88,7 +89,6 @@ def set_response(accept):
     accept_status = accept.status_code
     # not accepted
     if accept_status != 200:
-        print(accept)
         return JsonResponse({"err_msg": "failed to signup"}, status=accept_status)
 
     # accepted
@@ -99,8 +99,6 @@ def set_response(accept):
     data = json.loads(content)
     access_token = data.get("access")
     refresh_token = data.get("refresh")
-    print("\naccess token:", access_token)
-    print("\nrefresh token:", refresh_token)
 
     # response가 access token만 포함하도록 변경
     response_data = {"access": access_token}
@@ -110,7 +108,7 @@ def set_response(accept):
         response.set_cookie(
             "refresh_token",
             refresh_token,
-            httponly=True,
+            httponly=False,
             samesite="None",
         )
 
@@ -142,7 +140,6 @@ def kakao_callback(request):
     profile_json = profile_request.json()
 
     kakao_account = profile_json.get("kakao_account")
-    print("\nprofile:", profile_json)
 
     data = {"access_token": access_token, "code": code}
     accept = requests.post(f"{BASE_URL}auth/kakao/login/finish/", data=data)
@@ -198,16 +195,6 @@ def naver_callback(request):
     #     return set_response(accept)
 
 
-REDIRECT_URI = BASE_URL + "auth/"
-
-
-def kakao_logout(request):
-    client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
-    return redirect(
-        f"https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri={REDIRECT_URI}"
-    )
-
-
 class KakaoLogout(TokenBlacklistView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
@@ -232,18 +219,6 @@ class NaverLogout(TokenBlacklistView):
         )
 
         return response
-
-
-def naver_logout(request):
-    client_id = os.environ.get("SOCIAL_AUTH_NAVER_CLIENT_ID")
-    client_secret = os.environ.get("SOCIAL_AUTH_NAVER_SECRET")
-    access_token = request.GET.get("access_token")
-    return redirect(
-        f"https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id={client_id}&client_secret={client_secret}&access_token={access_token}&service_provider=NAVER"
-    )
-
-
-
 
 class KakaoLogin(SocialLoginView):
     adapter_class = kakao_view.KakaoOAuth2Adapter
