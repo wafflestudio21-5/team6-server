@@ -6,7 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="6f2d4853-f7d7-435e-88de-a44129578c44" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../waffleAuth/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/../waffleAuth/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../waffleAuth/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/../waffleAuth/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,7 +55,7 @@
       <updated>1705048406888</updated>
       <workItem from="1705048408121" duration="576000" />
       <workItem from="1705048994178" duration="49000" />
-      <workItem from="1705049049045" duration="998000" />
+      <workItem from="1705049049045" duration="1472000" />
     </task>
     <servers />
   </component>
