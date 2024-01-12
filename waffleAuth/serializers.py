@@ -56,12 +56,12 @@ class CustomRegisterSerializer(serializers.Serializer):
     nickname = serializers.CharField(
         max_length=get_username_max_length(),
         min_length=allauth_account_settings.USERNAME_MIN_LENGTH,
-    ) #이걸 required로 할 건지 의논 필요. 소셜 로그인 시에 자동으로 채워지는 field가 아님.
+        required=True,
+    )
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
 
     def custom_signup(self, request, user):
-        #여기서 nickname 확인하면 될 듯
         pass
 
     def get_cleaned_data(self):
@@ -126,6 +126,7 @@ class CustomRegisterSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     detail=serializers.as_serializer_error(exc)
                 )
+        user.nickname = self.cleaned_data['nickname']
         user.save()
         self.custom_signup(request, user)
         return user
