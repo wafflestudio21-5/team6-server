@@ -4,13 +4,39 @@ from content.models import Movie, Rating, State
 from comment.models import Comment, Like
 # Create your views here.
 from rest_framework.generics import RetrieveAPIView, ListAPIView
-from .serializers import StateSerializer, UserRatingSerializer, CommentSerializer, FollowerSerializer, FollowingSerializer, UserDetailSerializer, UserSerializer
-
+from .serializers import StateSerializer, UserRatingSerializer, CommentSerializer, UserDetailSerializer, UserSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.views import APIView
 
 class UserDetailView(RetrieveAPIView):
+    #authentication_classes = [JWTAuthentication]
+    #permission_classes = [IsAuthenticated]
     queryset = WaffleUser.objects.all()
     serializer_class = UserDetailSerializer
     lookup_field = 'pk'
+
+
+class UserFollowView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            user_to_follow = WaffleUser.objects.get(pk=pk)
+            if request.user == user_to_follow:
+                return Response({"error": "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
+
+            request.user.following.add(user_to_follow)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        except WaffleUser.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class FollowersListView(ListAPIView):

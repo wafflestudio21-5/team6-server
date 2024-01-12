@@ -19,21 +19,6 @@ class UserDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'nickname', 'bio', 'profile_photo', 'background_photo', 'followers_count', 'following_count']
 
 
-class FollowerSerializer(serializers.ModelSerializer):
-    followers = UserSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = WaffleUser
-        fields = ['id', 'username', 'followers']
-
-
-class FollowingSerializer(serializers.ModelSerializer):
-    following = UserSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = WaffleUser
-        fields = ['id', 'username', 'following']
-
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
