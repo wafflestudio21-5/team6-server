@@ -25,6 +25,8 @@ from dj_rest_auth.registration.views import LoginView
 from dj_rest_auth.app_settings import api_settings
 
 
+
+
 class CustomRegisterView(RegisterView):
     serializer_class = CustomRegisterSerializer
     def get_response_data(self, user):

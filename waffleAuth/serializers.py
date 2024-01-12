@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from allauth.account import app_settings as allauth_account_settings
 from allauth.utils import get_username_max_length
 from allauth.account.adapter import get_adapter
+from dj_rest_auth.registration.serializers import RegisterSerializer
 
 User = get_user_model()
 
@@ -47,12 +48,13 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
-class CustomRegisterSerializer(serializers.Serializer):
+class CustomRegisterSerializer(RegisterSerializer):
     username = serializers.CharField(
         max_length=get_username_max_length(),
         min_length=allauth_account_settings.USERNAME_MIN_LENGTH,
         required=True,
     )
+    email = serializers.EmailField(required=allauth_account_settings.EMAIL_REQUIRED)
     nickname = serializers.CharField(
         max_length=get_username_max_length(),
         min_length=allauth_account_settings.USERNAME_MIN_LENGTH,
@@ -68,6 +70,19 @@ class CustomRegisterSerializer(serializers.Serializer):
         return {
             'username': self.validated_data.get('username', ''),
             'nickname': self.validated_data.get('nickname', ''),
+            'password1': self.validated_data.get('password1', ''),
+        }
+
+    def validate_nickname(self, nickname):
+        nickname = get_adapter().clean_username(nickname)
+        return nickname
+
+
+    def get_cleaned_data(self):
+        return {
+            'username': self.validated_data.get('username', ''),
+            'nickname': self.validated_data.get('nickname', ''),
+            'email': self.validated_data.get('email', ''),  # No default empty string
             'password1': self.validated_data.get('password1', ''),
         }
 
