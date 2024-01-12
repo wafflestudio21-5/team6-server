@@ -1,3 +1,6 @@
 from django.shortcuts import render
+from django.conf import settings
 
-# Create your views here.
+
+KOBIS_API_KEY = settings.KOBIS_API_KEY
+KMDB_API_KEY = settings.KMDB_API_KEY
