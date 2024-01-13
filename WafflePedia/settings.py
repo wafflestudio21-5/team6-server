@@ -46,6 +46,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "WafflePedia-env.eba-wjpwvtcu.ap-northeast-2.elasticbeanstalk.com",
     "127.0.0.1",
+    "172.31.10.59",
 ]
 
 
