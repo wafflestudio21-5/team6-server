@@ -7,7 +7,6 @@ from allauth.socialaccount.providers.kakao import views as kakao_view
 from allauth.socialaccount.providers.naver import views as naver_view
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 import requests
-from rest_framework import status
 from json.decoder import JSONDecodeError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -19,6 +18,26 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.views import TokenBlacklistView
 from django.http import JsonResponse
 import json
+
+
+from dj_rest_auth.registration.views import RegisterView
+from dj_rest_auth.registration.views import LoginView
+from dj_rest_auth.app_settings import api_settings
+
+
+class CustomRegisterView(RegisterView):
+    serializer_class = CustomRegisterSerializer
+    def get_response_data(self, user):
+        response_data = super().get_response_data(user)
+
+        if api_settings.USE_JWT and hasattr(self, 'refresh_token'):
+            try:
+                # Blacklist the refresh token
+                self.refresh_token.blacklist()
+            except Exception as e:
+                pass
+
+        return response_data
 
 
 # token
@@ -36,7 +55,8 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 "refresh_token",
                 refresh_token,
                 httponly=False,
-                samesite="None",
+                samesite=None,
+                secure=True,
             )
 
         return response
@@ -57,7 +77,8 @@ class CookieTokenRefreshView(TokenRefreshView):
                 "refresh_token",
                 refresh_token,
                 httponly=False,
-                samesite="None",
+                samesite=None,
+                secure=True,
             )
 
         return response
@@ -109,7 +130,8 @@ def set_response(accept):
             "refresh_token",
             refresh_token,
             httponly=False,
-            samesite="None",
+            samesite=None,
+            secure=True,
         )
 
     return response
