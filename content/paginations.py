@@ -1,9 +1,7 @@
-from rest_framework.pagination import CursorPagination as BaseCursorPagination
+from rest_framework.pagination import PageNumberPagination as BasePageNumberPagination
 
 
-class MovieCursorPagination(BaseCursorPagination):
+class MoviePageNumberPagination(BasePageNumberPagination):
     page_size = 5
-
-
-class CommentCursorPagination(BaseCursorPagination):
-    page_size = 8
+    page_query_param = 'page'
+    page_size_query_param = 'page_size'
