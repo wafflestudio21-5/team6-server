@@ -223,5 +223,17 @@ CORS_ORIGIN_WHITELIST = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-ACCESS_CONTROL_ALLOW_HEADERS = ["*"]
-ACCESS_CONTROL_ALLOW_ORIGIN = "https://d1vexdz72u651e.cloudfront.net"
+CORS_ALLOW_HEADERS = [
+    'Accept',
+    'Accept-Language',
+    'Content-Type',
+    'Cookie',  # Expose the Cookie header
+    'DNT',
+    'Origin',
+    'User-Agent',
+    'X-Requested-With',
+    'X-CSRFToken',
+    'Set-Cookie',  # Expose the Set-Cookie header for cookies
+    'credentials'
+]
+CORS_ALLOW_ORIGIN = "https://d1vexdz72u651e.cloudfront.net"
