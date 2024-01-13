@@ -57,6 +57,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 httponly=False,
                 samesite=None,
                 secure=True,
+                domain=".wafflepedia.xyz",
             )
 
         return response
@@ -79,6 +80,7 @@ class CookieTokenRefreshView(TokenRefreshView):
                 httponly=False,
                 samesite=None,
                 secure=True,
+                domain=".wafflepedia.xyz",
             )
 
         return response
