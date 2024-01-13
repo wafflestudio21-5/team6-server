@@ -25,8 +25,6 @@ from dj_rest_auth.registration.views import LoginView
 from dj_rest_auth.app_settings import api_settings
 
 
-
-
 class CustomRegisterView(RegisterView):
     serializer_class = CustomRegisterSerializer
     def get_response_data(self, user):
@@ -57,7 +55,8 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 "refresh_token",
                 refresh_token,
                 httponly=False,
-                samesite="None",
+                samesite=None,
+                secure=True,
             )
 
         return response
@@ -78,7 +77,8 @@ class CookieTokenRefreshView(TokenRefreshView):
                 "refresh_token",
                 refresh_token,
                 httponly=False,
-                samesite="None",
+                samesite=None,
+                secure=True,
             )
 
         return response
@@ -130,7 +130,8 @@ def set_response(accept):
             "refresh_token",
             refresh_token,
             httponly=False,
-            samesite="None",
+            samesite=None,
+            secure=True,
         )
 
     return response
