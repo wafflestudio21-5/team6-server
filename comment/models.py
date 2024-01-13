@@ -9,6 +9,7 @@ class Comment(models.Model):
     created_by = models.ForeignKey(WaffleUser, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     content = models.TextField()
+    has_spoiler = models.BooleanField(default=False)
     rating = models.OneToOneField(Rating, null=True, blank=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

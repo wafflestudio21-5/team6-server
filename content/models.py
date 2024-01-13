@@ -42,6 +42,7 @@ class Rating(models.Model):
 class People(models.Model):
     peopleCD = models.CharField(max_length=20, primary_key=True)
     name = models.CharField(max_length=50)
+    photo = models.FileField(upload_to="people_photos/", blank=True)
     is_actor = models.BooleanField()
     is_director = models.BooleanField()
     is_writer = models.BooleanField()
