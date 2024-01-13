@@ -13,7 +13,8 @@ class Comment(models.Model):
     rating = models.OneToOneField(Rating, null=True, blank=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    likes = GenericRelation('Like')
+    likes = GenericRelation('Like', related_query_name='comment')
+    like_count = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.created_by.nickname + ' - ' + self.movie.title_ko
@@ -25,7 +26,7 @@ class Reply(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    likes = GenericRelation('Like')
+    likes = GenericRelation('Like', related_query_name='reply')
 
     def __str__(self):
         return '(' + str(self.comment) + ')' + " - " + self.content[:20]

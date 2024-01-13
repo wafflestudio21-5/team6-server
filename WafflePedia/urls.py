@@ -5,6 +5,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("sample/", include("sample.urls")),
     path("auth/", include("waffleAuth.urls")),
-    path("content/", include("content.urls")),
-    path("comment/", include("comment.urls")),
+    path("contents/", include("content.urls")),
+    path("comments/", include("comment.urls")),
 ]
