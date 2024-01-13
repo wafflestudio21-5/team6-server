@@ -7,15 +7,14 @@ from .paginations import *
 
 class MovieListAPI(generics.ListAPIView):
     serializer_class = MovieListSerializer
-    pagination_class = MovieCursorPagination
+    #pagination_class = MovieCursorPagination
 
     def get_queryset(self, *args, **kwargs):
         order_options = {
-            'latest': 'release_date',
-            'boxoffice': 'cumulative_audience'
+            'latest': '-release_date',
+            'box-office': 'cumulative_audience'
         }
-        queryset = Movie.objects.order_by(order_options[kwargs['order']])
-        return super().get_queryset()
+        return Movie.objects.order_by(order_options[self.request.query_params.get('order')])[:20]
 
 
 class MovieRetrieveAPI(generics.RetrieveAPIView):
