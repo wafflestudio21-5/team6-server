@@ -20,7 +20,11 @@ class CommentRatingSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     created_by = CommentWriterSerializer(read_only=True)
     rating = CommentRatingSerializer(read_only=True)
+    like_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ['id', 'created_by', 'content', 'has_spoiler', 'created_at', 'updated_at', 'movie', 'rating']
+        fields = '__all__'
+
+    def get_like_count(self, obj):
+        return obj.likes.all().count()

@@ -14,7 +14,6 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     likes = GenericRelation('Like', related_query_name='comment')
-    like_count = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.created_by.nickname + ' - ' + self.movie.title_ko
