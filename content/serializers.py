@@ -30,3 +30,9 @@ class MovieListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         exclude = ('plot', 'runtime', 'screening')
+
+
+class RatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rating
+        fields = '__all__'
