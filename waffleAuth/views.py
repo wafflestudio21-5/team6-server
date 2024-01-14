@@ -57,7 +57,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 httponly=False,
                 samesite="None",
                 secure=True,
-                #domain=".wafflepedia.xyz",
+                domain=".wafflepedia.xyz",
             )
 
         return response
@@ -80,7 +80,7 @@ class CookieTokenRefreshView(TokenRefreshView):
                 httponly=False,
                 samesite="None",
                 secure=True,
-                #domain=".wafflepedia.xyz",
+                domain=".wafflepedia.xyz",
             )
 
         return response
@@ -134,7 +134,7 @@ def set_response(accept):
             httponly=False,
             samesite="None",
             secure=True,
-            #domain=".wafflepedia.xyz",
+            domain=".wafflepedia.xyz",
         )
 
     return response
