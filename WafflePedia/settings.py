@@ -48,7 +48,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "172.31.10.59",
     "wafflepedia.xyz",
-    "https://d1vexdz72u651e.cloudfront.net",
+    "d1vexdz72u651e.cloudfront.net",
 ]
 
 
