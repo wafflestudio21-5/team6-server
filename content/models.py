@@ -62,11 +62,11 @@ class People(models.Model):
 
 class Role(models.Model):
     role = models.CharField(max_length=50)
-    actor = models.ForeignKey(People, on_delete=models.CASCADE)
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    actor = models.ForeignKey(People, on_delete=models.CASCADE, related_name="actor_roles")
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="castings")
 
     def __str__(self):
-        return self.movie.title_ko + " - " + self.actor.name + " - " + self.role
+        return self.actor.name + " - " + self.role
 
 
 class State(models.Model):
