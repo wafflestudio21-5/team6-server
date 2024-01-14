@@ -26,7 +26,7 @@ urlpatterns = [
     path("register/", include("dj_rest_auth.registration.urls")),
     path("token/register/", CustomRegisterView.as_view(), name='custom-register'),
     # Kakao
-    path("kakao/login/", kakao_login, name="kakao_login"),
+    path("kakao/login/", kakao_callback, name="kakao_login"),
     path("kakao/callback/", kakao_callback, name="kakao_callback"),
     path("kakao/login/finish/", KakaoLogin.as_view(), name="kakao_login_todjango"),
     path("kakao/logout/", KakaoLogout.as_view(), name="kakao_logout"),

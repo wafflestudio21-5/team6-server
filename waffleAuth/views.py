@@ -89,7 +89,7 @@ class CookieTokenRefreshView(TokenRefreshView):
 # social login
 state = os.environ.get("STATE")
 BASE_URL = os.environ.get("BASE_URL")
-KAKAO_CALLBACK_URI = BASE_URL + "auth/kakao/callback/"
+KAKAO_CALLBACK_URI = os.environ.get("KAKAO_CALLBACK_URI")
 NAVER_CALLBACK_URI = BASE_URL + "auth/naver/callback/"
 REDIRECT_URI = BASE_URL + "auth/"
 
