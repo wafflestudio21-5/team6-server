@@ -54,7 +54,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             response.set_cookie(
                 "refresh_token",
                 refresh_token,
-                httponly=False,
+                httponly="False",
                 samesite="None",
                 secure=True,
                 domain=".wafflepedia.xyz",
@@ -77,7 +77,7 @@ class CookieTokenRefreshView(TokenRefreshView):
             response.set_cookie(
                 "refresh_token",
                 refresh_token,
-                httponly=False,
+                httponly="False",
                 samesite="None",
                 secure=True,
                 domain=".wafflepedia.xyz",
@@ -131,7 +131,7 @@ def set_response(accept):
         response.set_cookie(
             "refresh_token",
             refresh_token,
-            httponly=False,
+            httponly="False",
             samesite="None",
             secure=True,
             domain=".wafflepedia.xyz",
