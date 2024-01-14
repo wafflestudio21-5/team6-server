@@ -234,6 +234,7 @@ CORS_ALLOW_HEADERS = [
     'X-Requested-With',
     'X-CSRFToken',
     'Set-Cookie',  # Expose the Set-Cookie header for cookies
-    'credentials'
+    'credentials',
+    'Authorization',
 ]
 CORS_ALLOW_ORIGIN = "https://d1vexdz72u651e.cloudfront.net"
