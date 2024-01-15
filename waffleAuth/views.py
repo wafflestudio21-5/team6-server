@@ -24,6 +24,8 @@ from dj_rest_auth.registration.views import RegisterView
 from dj_rest_auth.registration.views import LoginView
 from dj_rest_auth.app_settings import api_settings
 
+COOKIE_DURATION = 86400
+
 
 class CustomRegisterView(RegisterView):
     serializer_class = CustomRegisterSerializer
@@ -58,6 +60,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 samesite="None",
                 secure=True,
                 domain=".wafflepedia.xyz",
+                max_age=COOKIE_DURATION,
             )
 
         return response
@@ -81,6 +84,7 @@ class CookieTokenRefreshView(TokenRefreshView):
                 samesite="None",
                 secure=True,
                 domain=".wafflepedia.xyz",
+                max_age=COOKIE_DURATION,
             )
 
         return response
@@ -92,6 +96,7 @@ BASE_URL = os.environ.get("BASE_URL")
 KAKAO_CALLBACK_URI = os.environ.get("KAKAO_CALLBACK_URI")
 NAVER_CALLBACK_URI = BASE_URL + "auth/naver/callback/"
 REDIRECT_URI = BASE_URL + "auth/"
+
 
 
 def kakao_login(request):
@@ -135,6 +140,7 @@ def set_response(accept):
             samesite="None",
             secure=True,
             domain=".wafflepedia.xyz",
+            max_age=COOKIE_DURATION,
         )
 
     return response
