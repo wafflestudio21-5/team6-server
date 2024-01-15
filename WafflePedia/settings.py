@@ -48,6 +48,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "172.31.10.59",
     "wafflepedia.xyz",
+    "d1vexdz72u651e.cloudfront.net",
 ]
 
 
@@ -234,6 +235,7 @@ CORS_ALLOW_HEADERS = [
     'X-Requested-With',
     'X-CSRFToken',
     'Set-Cookie',  # Expose the Set-Cookie header for cookies
-    'credentials'
+    'credentials',
+    'Authorization',
 ]
 CORS_ALLOW_ORIGIN = "https://d1vexdz72u651e.cloudfront.net"
