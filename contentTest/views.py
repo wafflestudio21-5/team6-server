@@ -13,21 +13,32 @@ KMDB_API_KEY = settings.KMDB_API_KEY
 
 @api_view(['GET'])
 def kobis_movies(request):
-    # url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json'
-    url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json'
+    url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json'
     params = {
         'key': KOBIS_API_KEY,
-        'targetDt': '20240114',
-        # 'curPage': "1",
-        # 'itemPerPage': "30",
+        'curPage': "1",
+        'itemPerPage': "30",
     }
     response = requests.get(url, params=params)
-    # movies_data = response.json()['movieListResult']['movieList']
-    movies_data = response.json()
+    movies_data = response.json()['movieListResult']['movieList']
     movie_serializer = MovieSerializer(movies_data, many=True)
 
-    # return Response(movie_serializer.data)
+    return Response(movie_serializer.data)
+    # return Response(movies_data)
+
+
+@api_view(['GET'])
+def kobis_box_office(request):
+    url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json'
+    params = {
+        'key' : KOBIS_API_KEY,
+        'targetDt' : '20240114', # 추후 현재 Date로 바꿔야 할 것
+    }
+    response = requests.get(url, params=params)
+    movies_data = response.json()['boxOfficeResult']['dailyBoxOfficeList']
+
     return Response(movies_data)
+
 
 
 @api_view(['GET'])
