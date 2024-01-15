@@ -268,6 +268,7 @@ class MyProtectedView(APIView):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = WaffleUser.objects.all()
     serializer_class = UserSerializer
