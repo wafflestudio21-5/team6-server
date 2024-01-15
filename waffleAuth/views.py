@@ -68,6 +68,8 @@ class CookieTokenObtainPairView(TokenObtainPairView):
 
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
+        org_refresh_token = request.COOKIES.get('refresh_token')
+        request.data["refresh"] = org_refresh_token
         response_data = super().post(request, *args, **kwargs).data
         access_token = response_data.get("access")
         refresh_token = response_data.get("refresh")
