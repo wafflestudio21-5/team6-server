@@ -12,9 +12,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 
+
 class UserDetailView(RetrieveAPIView):
-    #authentication_classes = [JWTAuthentication]
-    #permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = WaffleUser.objects.all()
     serializer_class = UserDetailSerializer
     lookup_field = 'pk'
@@ -24,17 +25,33 @@ class UserFollowView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, pk):
+    def post(self, request):
         try:
-            user_to_follow = WaffleUser.objects.get(pk=pk)
-            if request.user == user_to_follow:
+            # Get user_id from request data
+            user_id = request.data.get('user_id')
+            if user_id is None:
+                return Response({"error": "User ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+            loggedin_user = request.user  # Authenticated user from JWT token
+            user_to_follow = WaffleUser.objects.get(pk=user_id)
+
+            if loggedin_user == user_to_follow:
                 return Response({"error": "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
 
-            request.user.following.add(user_to_follow)
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            if user_to_follow in loggedin_user.following.all():
+                return Response({"error": f"You already follow {user_to_follow.username}."},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            loggedin_user.following.add(user_to_follow)
+
+            #print(f"User: {loggedin_user.username}")  # Print the user making the request
+            #print("Following list:",
+            #      [user.username for user in loggedin_user.following.all()])  # List of usernames being followed
+
+            return Response({"message": f"Successfully followed the user {user_to_follow.username}."}, status=status.HTTP_200_OK)
 
         except WaffleUser.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
