@@ -7,7 +7,6 @@ from allauth.socialaccount.providers.kakao import views as kakao_view
 from allauth.socialaccount.providers.naver import views as naver_view
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 import requests
-from rest_framework import status
 from json.decoder import JSONDecodeError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -22,20 +21,27 @@ import json
 from dj_rest_auth.registration.views import RegisterView
 from dj_rest_auth.app_settings import api_settings
 
+from dj_rest_auth.registration.views import RegisterView
+from dj_rest_auth.registration.views import LoginView
+from dj_rest_auth.app_settings import api_settings
+
+COOKIE_DURATION = 86400
+
 
 class CustomRegisterView(RegisterView):
-     def get_response_data(self, user):
-         response_data = super().get_response_data(user)
+    serializer_class = CustomRegisterSerializer
+    def get_response_data(self, user):
+        response_data = super().get_response_data(user)
 
-         if api_settings.USE_JWT and hasattr(self, 'refresh_token'):
-             try:
-                 # Blacklist the refresh token
-                 self.refresh_token.blacklist()
-             except Exception as e:
-                 pass
+        if api_settings.USE_JWT and hasattr(self, 'refresh_token'):
+            try:
+                # Blacklist the refresh token
+                self.refresh_token.blacklist()
+            except Exception as e:
+                pass
 
-         return response_data
-
+        return response_data
+      
 # token
 class CookieTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
@@ -50,8 +56,11 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             response.set_cookie(
                 "refresh_token",
                 refresh_token,
-                httponly=True,
+                httponly=False,
                 samesite="None",
+                secure=True,
+                domain=".wafflepedia.xyz",
+                max_age=COOKIE_DURATION,
             )
 
         return response
@@ -59,6 +68,8 @@ class CookieTokenObtainPairView(TokenObtainPairView):
 
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
+        org_refresh_token = request.COOKIES.get('refresh_token')
+        request.data["refresh"] = org_refresh_token
         response_data = super().post(request, *args, **kwargs).data
         access_token = response_data.get("access")
         refresh_token = response_data.get("refresh")
@@ -71,8 +82,11 @@ class CookieTokenRefreshView(TokenRefreshView):
             response.set_cookie(
                 "refresh_token",
                 refresh_token,
-                httponly=True,
+                httponly=False,
                 samesite="None",
+                secure=True,
+                domain=".wafflepedia.xyz",
+                max_age=COOKIE_DURATION,
             )
 
         return response
@@ -81,8 +95,10 @@ class CookieTokenRefreshView(TokenRefreshView):
 # social login
 state = os.environ.get("STATE")
 BASE_URL = os.environ.get("BASE_URL")
-KAKAO_CALLBACK_URI = BASE_URL + "auth/kakao/callback/"
+KAKAO_CALLBACK_URI = os.environ.get("KAKAO_CALLBACK_URI")
 NAVER_CALLBACK_URI = BASE_URL + "auth/naver/callback/"
+REDIRECT_URI = BASE_URL + "auth/"
+
 
 
 def kakao_login(request):
@@ -103,7 +119,6 @@ def set_response(accept):
     accept_status = accept.status_code
     # not accepted
     if accept_status != 200:
-        print(accept)
         return JsonResponse({"err_msg": "failed to signup"}, status=accept_status)
 
     # accepted
@@ -114,8 +129,6 @@ def set_response(accept):
     data = json.loads(content)
     access_token = data.get("access")
     refresh_token = data.get("refresh")
-    print("\naccess token:", access_token)
-    print("\nrefresh token:", refresh_token)
 
     # response가 access token만 포함하도록 변경
     response_data = {"access": access_token}
@@ -125,8 +138,11 @@ def set_response(accept):
         response.set_cookie(
             "refresh_token",
             refresh_token,
-            httponly=True,
+            httponly=False,
             samesite="None",
+            secure=True,
+            domain=".wafflepedia.xyz",
+            max_age=COOKIE_DURATION,
         )
 
     return response
@@ -157,7 +173,6 @@ def kakao_callback(request):
     profile_json = profile_request.json()
 
     kakao_account = profile_json.get("kakao_account")
-    print("\nprofile:", profile_json)
 
     data = {"access_token": access_token, "code": code}
     accept = requests.post(f"{BASE_URL}auth/kakao/login/finish/", data=data)
@@ -213,16 +228,6 @@ def naver_callback(request):
     #     return set_response(accept)
 
 
-REDIRECT_URI = BASE_URL + "auth/"
-
-
-def kakao_logout(request):
-    client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
-    return redirect(
-        f"https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri={REDIRECT_URI}"
-    )
-
-
 class KakaoLogout(TokenBlacklistView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
@@ -248,18 +253,6 @@ class NaverLogout(TokenBlacklistView):
 
         return response
 
-
-def naver_logout(request):
-    client_id = os.environ.get("SOCIAL_AUTH_NAVER_CLIENT_ID")
-    client_secret = os.environ.get("SOCIAL_AUTH_NAVER_SECRET")
-    access_token = request.GET.get("access_token")
-    return redirect(
-        f"https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id={client_id}&client_secret={client_secret}&access_token={access_token}&service_provider=NAVER"
-    )
-
-
-
-
 class KakaoLogin(SocialLoginView):
     adapter_class = kakao_view.KakaoOAuth2Adapter
     callback_url = KAKAO_CALLBACK_URI
@@ -283,6 +276,7 @@ class MyProtectedView(APIView):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = WaffleUser.objects.all()
     serializer_class = UserSerializer
