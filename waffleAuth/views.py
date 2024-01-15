@@ -18,7 +18,8 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.views import TokenBlacklistView
 from django.http import JsonResponse
 import json
-
+from dj_rest_auth.registration.views import RegisterView
+from dj_rest_auth.app_settings import api_settings
 
 from dj_rest_auth.registration.views import RegisterView
 from dj_rest_auth.registration.views import LoginView
@@ -40,8 +41,7 @@ class CustomRegisterView(RegisterView):
                 pass
 
         return response_data
-
-
+      
 # token
 class CookieTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):

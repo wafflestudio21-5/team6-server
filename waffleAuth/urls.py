@@ -16,6 +16,7 @@ urlpatterns = [
     # for token authentication
     path("", include("dj_rest_auth.urls")),
     path("token/", CookieTokenObtainPairView.as_view(), name="token_obtain_pair"),
+
     path(
         "token/refresh/new/",
         CookieTokenRefreshView.as_view(),
