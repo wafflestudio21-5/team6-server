@@ -16,6 +16,7 @@ urlpatterns = [
     # for token authentication
     path("", include("dj_rest_auth.urls")),
     path("token/", CookieTokenObtainPairView.as_view(), name="token_obtain_pair"),
+
     path(
         "token/refresh/new/",
         CookieTokenRefreshView.as_view(),
@@ -24,8 +25,9 @@ urlpatterns = [
     path("token/logout/", TokenBlacklistView.as_view(), name="token_blacklist"),
     # for registration
     path("register/", include("dj_rest_auth.registration.urls")),
+    path("token/register/", CustomRegisterView.as_view(), name='custom-register'),
     # Kakao
-    path("kakao/login/", kakao_login, name="kakao_login"),
+    path("kakao/login/", kakao_callback, name="kakao_login"),
     path("kakao/callback/", kakao_callback, name="kakao_callback"),
     path("kakao/login/finish/", KakaoLogin.as_view(), name="kakao_login_todjango"),
     path("kakao/logout/", KakaoLogout.as_view(), name="kakao_logout"),

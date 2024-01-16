@@ -7,7 +7,6 @@ from allauth.socialaccount.providers.kakao import views as kakao_view
 from allauth.socialaccount.providers.naver import views as naver_view
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 import requests
-from rest_framework import status
 from json.decoder import JSONDecodeError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -19,8 +18,30 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.views import TokenBlacklistView
 from django.http import JsonResponse
 import json
+from dj_rest_auth.registration.views import RegisterView
+from dj_rest_auth.app_settings import api_settings
+
+from dj_rest_auth.registration.views import RegisterView
+from dj_rest_auth.registration.views import LoginView
+from dj_rest_auth.app_settings import api_settings
+
+COOKIE_DURATION = 86400
 
 
+class CustomRegisterView(RegisterView):
+    serializer_class = CustomRegisterSerializer
+    def get_response_data(self, user):
+        response_data = super().get_response_data(user)
+
+        if api_settings.USE_JWT and hasattr(self, 'refresh_token'):
+            try:
+                # Blacklist the refresh token
+                self.refresh_token.blacklist()
+            except Exception as e:
+                pass
+
+        return response_data
+      
 # token
 class CookieTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
@@ -37,6 +58,9 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 refresh_token,
                 httponly=False,
                 samesite="None",
+                secure=True,
+                domain=".d1vexdz72u651e.cloudfront.net",
+                max_age=COOKIE_DURATION,
             )
 
         return response
@@ -44,6 +68,8 @@ class CookieTokenObtainPairView(TokenObtainPairView):
 
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
+        org_refresh_token = request.COOKIES.get('refresh_token')
+        request.data["refresh"] = org_refresh_token
         response_data = super().post(request, *args, **kwargs).data
         access_token = response_data.get("access")
         refresh_token = response_data.get("refresh")
@@ -58,6 +84,9 @@ class CookieTokenRefreshView(TokenRefreshView):
                 refresh_token,
                 httponly=False,
                 samesite="None",
+                secure=True,
+                domain=".d1vexdz72u651e.cloudfront.net",
+                max_age=COOKIE_DURATION,
             )
 
         return response
@@ -66,9 +95,10 @@ class CookieTokenRefreshView(TokenRefreshView):
 # social login
 state = os.environ.get("STATE")
 BASE_URL = os.environ.get("BASE_URL")
-KAKAO_CALLBACK_URI = BASE_URL + "auth/kakao/callback/"
+KAKAO_CALLBACK_URI = os.environ.get("KAKAO_CALLBACK_URI")
 NAVER_CALLBACK_URI = BASE_URL + "auth/naver/callback/"
 REDIRECT_URI = BASE_URL + "auth/"
+
 
 
 def kakao_login(request):
@@ -110,6 +140,9 @@ def set_response(accept):
             refresh_token,
             httponly=False,
             samesite="None",
+            secure=True,
+            domain=".d1vexdz72u651e.cloudfront.net",
+            max_age=COOKIE_DURATION,
         )
 
     return response
@@ -243,6 +276,7 @@ class MyProtectedView(APIView):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = WaffleUser.objects.all()
     serializer_class = UserSerializer
