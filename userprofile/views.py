@@ -31,6 +31,36 @@ class UserMyPageDetailView(RetrieveAPIView):
         return Response(serializer.data)
 
 
+class AddFollowView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        try:
+            loggedin_user = request.user  # Authenticated user from JWT token
+            user_to_follow = WaffleUser.objects.get(pk=user_id)
+
+            if loggedin_user == user_to_follow:
+                return Response({"error": "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
+
+            if user_to_follow in loggedin_user.following.all():
+                return Response({"error": f"You already follow {user_to_follow.username}."},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            loggedin_user.following.add(user_to_follow)
+
+            print(f"User: {loggedin_user.username}")  # Print the user making the request
+            print("Following list:",
+                  [user.username for user in loggedin_user.following.all()])  # List of usernames being followed
+
+            return Response({"message": f"Successfully followed the user {user_to_follow.username}."}, status=status.HTTP_200_OK)
+
+        except WaffleUser.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class UserFollowView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
