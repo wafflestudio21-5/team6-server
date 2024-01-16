@@ -31,6 +31,7 @@ def kobis_movies_list(request):
 @api_view(['GET', 'POST'])
 def kobis_movies_detail(request, pk):
     if request.method == 'GET':
+        #KOBIS 로직. movieCD를 통해 Detail API에서 가져올 수 있는 것들 가져옴
         kobis_url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json'
         kobis_params = {
             'key': KOBIS_API_KEY,
@@ -42,6 +43,7 @@ def kobis_movies_detail(request, pk):
         movie_director = movie_data['directors'][0]['peopleNm']
         movie_nation = movie_data['nations'][0]['nationNm']
 
+        #KMDB 로직. KOBIS에서 가져온 제목과 감독 이용해 검색하여, plot과 poster 가져옴
         kmdb_url = 'http://api.koreafilm.or.kr/openapi-data2/wisenut/search_api/search_json2.jsp?collection=kmdb_new2'
         kmdb_params = {
             'ServiceKey': KMDB_API_KEY,
