@@ -21,6 +21,16 @@ class UserDetailView(RetrieveAPIView):
     lookup_field = 'pk'
 
 
+class UserMyPageDetailView(RetrieveAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        serializer = UserDetailSerializer(user)
+        return Response(serializer.data)
+
+
 class UserFollowView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
