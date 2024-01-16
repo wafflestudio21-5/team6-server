@@ -3,9 +3,11 @@ from .models import Movie
 
 
 class MovieListSerializer(serializers.ModelSerializer):
+    poster = serializers.URLField()
+
     class Meta:
         model = Movie
-        fields = ['movieCd', 'movieNm', 'nationAlt', 'openDt']
+        fields = ['movieCd', 'movieNm', 'nationAlt', 'openDt', 'poster']
 
 
 class MovieDetailSerializer(serializers.ModelSerializer):

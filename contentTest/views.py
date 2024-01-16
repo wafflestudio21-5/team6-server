@@ -63,15 +63,31 @@ def kobis_movies_detail(request, pk):
 
 @api_view(['GET'])
 def kobis_box_office(request):
-    url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json'
-    params = {
+    boxoffice_url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json'
+    boxoffice_params = {
         'key' : KOBIS_API_KEY,
-        'targetDt' : '20240114', # 추후 현재 Date로 바꿔야 할 것
+        'targetDt' : '20240115', # 추후 현재 Date로 바꿔야 할 것
     }
-    response = requests.get(url, params=params)
+    response = requests.get(boxoffice_url, params=boxoffice_params)
     movies_data = response.json()['boxOfficeResult']['dailyBoxOfficeList']
 
-    return Response(movies_data)
+    for movie in movies_data:
+        movie_title = movie['movieNm']
+        kmdb_url = 'http://api.koreafilm.or.kr/openapi-data2/wisenut/search_api/search_json2.jsp?collection=kmdb_new2'
+        kmdb_params = {
+            'ServiceKey': KMDB_API_KEY,
+            'listCount': "1",
+            'title': movie_title,
+        }
+        kmdb_response = requests.get(kmdb_url, params=kmdb_params)
+        kmdb_data = kmdb_response.json()['Data'][0]['Result'][0]
+        kmdb_poster = kmdb_data['posters'].split('|')[0]
+
+        movie['poster'] = kmdb_poster
+
+    movie_serializer = MovieListSerializer(movies_data, many=True)
+
+    return Response(movie_serializer.data)
 
 
 
