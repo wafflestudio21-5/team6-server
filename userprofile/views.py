@@ -48,9 +48,9 @@ class AddFollowView(APIView):
 
             loggedin_user.following.add(user_to_follow)
 
-            print(f"User: {loggedin_user.username}")  # Print the user making the request
-            print("Following list:",
-                  [user.username for user in loggedin_user.following.all()])  # List of usernames being followed
+            #print(f"User: {loggedin_user.username}")  # Print the user making the request
+            #print("Following list:",
+            #      [user.username for user in loggedin_user.following.all()])  # List of usernames being followed
 
             return Response({"message": f"Successfully followed the user {user_to_follow.username}."}, status=status.HTTP_200_OK)
 
