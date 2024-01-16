@@ -28,45 +28,59 @@ def kobis_movies_list(request):
     return Response(movie_serializer.data)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def kobis_movies_detail(request, pk):
-    kobis_url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json'
-    kobis_params = {
-        'key': KOBIS_API_KEY,
-        'movieCd': pk,
-    }
-    kobis_response = requests.get(kobis_url, params=kobis_params)
-    movie_data = kobis_response.json()['movieInfoResult']['movieInfo']
-    movie_title = movie_data['movieNm']
-    movie_director = movie_data['directors'][0]['peopleNm']
+    if request.method == 'GET':
+        kobis_url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json'
+        kobis_params = {
+            'key': KOBIS_API_KEY,
+            'movieCd': pk,
+        }
+        kobis_response = requests.get(kobis_url, params=kobis_params)
+        movie_data = kobis_response.json()['movieInfoResult']['movieInfo']
+        movie_title = movie_data['movieNm']
+        movie_director = movie_data['directors'][0]['peopleNm']
+        movie_nation = movie_data['nations'][0]['nationNm']
 
-    kmdb_url = 'http://api.koreafilm.or.kr/openapi-data2/wisenut/search_api/search_json2.jsp?collection=kmdb_new2'
-    kmdb_params = {
-        'ServiceKey': KMDB_API_KEY,
-        'listCount': "1",
-        'title': movie_title,
-        'director': movie_director,
-    }
-    kmdb_response = requests.get(kmdb_url, params=kmdb_params)
-    kmdb_data = kmdb_response.json()['Data'][0]['Result'][0]
-    kmdb_poster = kmdb_data['posters'].split('|')[0]
-    kmdb_plot = kmdb_data['plots']['plot'][0]['plotText']
+        kmdb_url = 'http://api.koreafilm.or.kr/openapi-data2/wisenut/search_api/search_json2.jsp?collection=kmdb_new2'
+        kmdb_params = {
+            'ServiceKey': KMDB_API_KEY,
+            'listCount': "1",
+            'title': movie_title,
+            'director': movie_director,
+        }
+        kmdb_response = requests.get(kmdb_url, params=kmdb_params)
+        kmdb_data = kmdb_response.json()['Data'][0]['Result'][0]
+        kmdb_poster = kmdb_data['posters'].split('|')[0]
+        kmdb_plot = kmdb_data['plots']['plot'][0]['plotText']
 
-    # Add kmdb_poster and kmdb_plot to movie_data
-    movie_data['poster'] = kmdb_poster
-    movie_data['plot'] = kmdb_plot
+        # Add kmdb_poster and kmdb_plot to movie_data
+        movie_data['poster'] = kmdb_poster
+        movie_data['plot'] = kmdb_plot
+        movie_data['nationAlt'] = movie_nation
 
-    movie_serializer = MovieDetailSerializer(movie_data)
+        movie_serializer = MovieDetailSerializer(movie_data)
 
-    return Response(movie_serializer.data)
+        return Response(movie_serializer.data)
+
+    elif request.method == 'POST':
+        movie_serializer = MovieDetailSerializer(data=request.data)
+
+        if movie_serializer.is_valid():
+            # Save the data to the database
+            movie_serializer.save()
+            return Response(movie_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(movie_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
 def kobis_box_office(request):
+    # boxoffice list 불러오기
     boxoffice_url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json'
     boxoffice_params = {
         'key' : KOBIS_API_KEY,
-        'targetDt' : '20240115', # 추후 현재 Date로 바꿔야 할 것
+        'targetDt' : '20240115',  # 추후 현재 Date로 바꿔야 할 것 -> 어차피 DB 주입한다면 그냥 상수로 해도 될 것 같다
     }
     response = requests.get(boxoffice_url, params=boxoffice_params)
     movies_data = response.json()['boxOfficeResult']['dailyBoxOfficeList']
@@ -78,6 +92,7 @@ def kobis_box_office(request):
             'ServiceKey': KMDB_API_KEY,
             'listCount': "1",
             'title': movie_title,
+            # director를 불러오려면 KMDB_DETAIL을 써야 하기 때문에 여기에서 제외함. 어차피 DB 주입한다면 크게 신경 안 써도 될 것 같다.
         }
         kmdb_response = requests.get(kmdb_url, params=kmdb_params)
         kmdb_data = kmdb_response.json()['Data'][0]['Result'][0]
@@ -106,3 +121,17 @@ def kmdb_movies(request):
 
     # return Response(movie_serializer.data)
     return Response(movies_data)
+
+
+@api_view(['GET'])
+def kobis_people(request, pk):
+    url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/people/searchPeopleList.json'
+    params = {
+        'key': KOBIS_API_KEY,
+        'itemPerPage': "100",
+        'filmoNames': pk,
+    }
+    response = requests.get(url, params=params)
+    people_data = response.json()
+
+    return Response(people_data)

@@ -13,6 +13,7 @@ class MovieListSerializer(serializers.ModelSerializer):
 class MovieDetailSerializer(serializers.ModelSerializer):
     poster = serializers.URLField()
     plot = serializers.CharField()
+    nationAlt = serializers.CharField()
 
     class Meta:
         model = Movie
