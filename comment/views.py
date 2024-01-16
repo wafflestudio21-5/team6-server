@@ -19,9 +19,10 @@ class CommentListAPIView(generics.ListAPIView):
             'low-rating': 'rate_count',
             'created': '-created_at'
         }
-        self.pagination_class.ordering = order_options[self.request.query_params.get('order')]
-        if 'rate' in order_options[self.request.query_params.get('order')]:
-            return Comment.objects.filter(movie=movie).exclude(rating__isnull=True).annotate(like_count=Count('likes'), rate_count=F('rating__rate'))
+        if self.request.query_params.get('order'):
+            self.pagination_class.ordering = order_options[self.request.query_params.get('order')]
+            if 'rate' in order_options[self.request.query_params.get('order')]:
+                return Comment.objects.filter(movie=movie).exclude(rating__isnull=True).annotate(like_count=Count('likes'), rate_count=F('rating__rate'))
         return Comment.objects.filter(movie=movie).annotate(like_count=Count('likes'), rate_count=F('rating__rate'))
 
     def get(self, request, *args, **kwargs):
