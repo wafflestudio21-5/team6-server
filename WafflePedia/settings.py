@@ -46,6 +46,9 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "WafflePedia-env.eba-wjpwvtcu.ap-northeast-2.elasticbeanstalk.com",
     "127.0.0.1",
+    "172.31.10.59",
+    "wafflepedia.xyz",
+    "d1vexdz72u651e.cloudfront.net",
 ]
 
 
@@ -214,7 +217,25 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # CORS Setting
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ORIGIN_WHITELIST = [
+     "http://localhost:5173",
+     "https://localhost:5173",
+     "https://d1vexdz72u651e.cloudfront.net",
+]
 
-# CORS_ALLOWED_ORIGINS
-# CORS_ALLOWED_ORIGINS = ["*"]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'Accept',
+    'Accept-Language',
+    'Content-Type',
+    'Cookie',  # Expose the Cookie header
+    'DNT',
+    'Origin',
+    'User-Agent',
+    'X-Requested-With',
+    'X-CSRFToken',
+    'Set-Cookie',  # Expose the Set-Cookie header for cookies
+    'credentials',
+    'Authorization',
+]
+CORS_ALLOW_ORIGIN = "https://d1vexdz72u651e.cloudfront.net"

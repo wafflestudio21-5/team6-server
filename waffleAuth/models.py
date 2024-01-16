@@ -4,6 +4,7 @@ from django.db import models
 
 class WaffleUser(AbstractUser):
     nickname = models.CharField(max_length=20)
+    email = models.EmailField(null=True, blank=True)
     bio = models.CharField(max_length=60)
     profile_photo = models.FileField(upload_to="profile_photos/", null=True, blank=True)
     background_photo = models.FileField(
