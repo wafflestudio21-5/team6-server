@@ -3,7 +3,7 @@ from waffleAuth.models import WaffleUser
 from content.models import Movie, Rating, State
 from comment.models import Comment, Like
 # Create your views here.
-from rest_framework.generics import RetrieveAPIView, ListAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView, RetrieveUpdateAPIView
 from .serializers import StateSerializer, UserRatingSerializer, CommentSerializer, UserDetailSerializer, UserSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -17,18 +17,17 @@ class UserDetailView(RetrieveAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = WaffleUser.objects.all()
-    serializer_class = UserDetailSerializer
+    serializer_class = UserSerializer
     lookup_field = 'pk'
 
 
-class UserMyPageDetailView(RetrieveAPIView):
+class UserMyPageDetailView(RetrieveUpdateAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+    serializer_class = UserDetailSerializer
 
-    def get(self, request, *args, **kwargs):
-        user = request.user
-        serializer = UserDetailSerializer(user)
-        return Response(serializer.data)
+    def get_object(self):
+        return self.request.user
 
 
 class AddFollowView(APIView):
