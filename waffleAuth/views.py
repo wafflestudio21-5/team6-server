@@ -59,7 +59,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 httponly=False,
                 samesite="None",
                 secure=True,
-                domain=".wafflepedia.xyz",
+                domain=".d1vexdz72u651e.cloudfront.net",
                 max_age=COOKIE_DURATION,
             )
 
@@ -85,7 +85,7 @@ class CookieTokenRefreshView(TokenRefreshView):
                 httponly=False,
                 samesite="None",
                 secure=True,
-                domain=".wafflepedia.xyz",
+                domain=".d1vexdz72u651e.cloudfront.net",
                 max_age=COOKIE_DURATION,
             )
 
@@ -141,7 +141,7 @@ def set_response(accept):
             httponly=False,
             samesite="None",
             secure=True,
-            domain=".wafflepedia.xyz",
+            domain=".d1vexdz72u651e.cloudfront.net",
             max_age=COOKIE_DURATION,
         )
 
