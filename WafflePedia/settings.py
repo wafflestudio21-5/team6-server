@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     "sample",
     "comment",
     "content",
+    "userprofile",
 ]
 
 MIDDLEWARE = [

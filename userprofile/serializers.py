@@ -5,9 +5,13 @@ from comment.models import Comment, Like
 
 
 class UserSerializer(serializers.ModelSerializer):
+    followers_count = serializers.IntegerField(source='followers.count', read_only=True)
+    following_count = serializers.IntegerField(source='following.count', read_only=True)
+
     class Meta:
         model = WaffleUser
-        fields = ['id', 'username', 'nickname', 'bio', 'profile_photo', 'background_photo']
+        fields = ['id', 'username', 'nickname', 'bio', 'profile_photo', 'background_photo', 'followers_count', 'following_count']
+
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -18,6 +22,13 @@ class UserDetailSerializer(serializers.ModelSerializer):
         model = WaffleUser
         fields = ['id', 'username', 'nickname', 'bio', 'profile_photo', 'background_photo', 'followers_count', 'following_count']
 
+    def update(self, instance, validated_data):
+        instance.nickname = validated_data.get('nickname', instance.nickname)
+        instance.bio = validated_data.get('bio', instance.bio)
+        #instance.profile_photo = validated_data.get('profile_photo', instance.profile_photo)
+        #instance.background_photo = validated_data.get('background_photo', instance.background_photo)
+        instance.save()
+        return instance
 
 
 class CommentSerializer(serializers.ModelSerializer):
