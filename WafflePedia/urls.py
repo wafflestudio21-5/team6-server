@@ -8,4 +8,5 @@ urlpatterns = [
     path("api/contents/", include("content.urls")),
     path("api/comments/", include("comment.urls")),
     path("api/users/", include("userprofile.urls")),
+    path("contentTest/", include("contentTest.urls")),
 ]

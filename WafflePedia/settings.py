@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -32,6 +31,10 @@ env = environ.Env(
 
 # reading .env file
 environ.Env.read_env()
+
+# OPEN_API_KEY setting
+KOBIS_API_KEY = env('KOBIS_API_KEY')
+KMDB_API_KEY = env('KMDB_API_KEY')
 
 
 # Quick-start development settings - unsuitable for production
@@ -83,6 +86,7 @@ INSTALLED_APPS = [
     "sample",
     "comment",
     "content",
+    "contentTest",
     "userprofile",
 ]
 
