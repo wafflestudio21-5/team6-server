@@ -3,7 +3,10 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("sample/", include("sample.urls")),
-    path("auth/", include("waffleAuth.urls")),
+    path("api/sample/", include("sample.urls")),
+    path("api/auth/", include("waffleAuth.urls")),
+    path("api/contents/", include("content.urls")),
+    path("api/comments/", include("comment.urls")),
+    path("api/users/", include("userprofile.urls")),
     path("contentTest/", include("contentTest.urls")),
 ]

@@ -42,6 +42,7 @@ class Rating(models.Model):
 class People(models.Model):
     peopleCD = models.CharField(max_length=20, primary_key=True)
     name = models.CharField(max_length=50)
+    photo = models.FileField(upload_to="people_photos/", blank=True)
     is_actor = models.BooleanField()
     is_director = models.BooleanField()
     is_writer = models.BooleanField()
@@ -61,11 +62,11 @@ class People(models.Model):
 
 class Role(models.Model):
     role = models.CharField(max_length=50)
-    actor = models.ForeignKey(People, on_delete=models.CASCADE)
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    actor = models.ForeignKey(People, on_delete=models.CASCADE, related_name="actor_roles")
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="castings")
 
     def __str__(self):
-        return self.movie.title_ko + " - " + self.actor.name + " - " + self.role
+        return self.actor.name + " - " + self.role
 
 
 class State(models.Model):
