@@ -12,11 +12,13 @@ class MovieListAPI(generics.ListAPIView):
     pagination_class = MoviePageNumberPagination
 
     def get_queryset(self, *args, **kwargs):
-        order_options = {
-            'latest': '-release_date',
-            'box-office': '-cumulative_audience'
-        }
-        return Movie.objects.order_by(order_options[self.request.query_params.get('order')])[:20]
+        if self.request.query_params.get('order'):
+            order_options = {
+                'latest': '-release_date',
+                'box-office': '-cumulative_audience'
+            }
+            return Movie.objects.order_by(order_options[self.request.query_params.get('order')])[:20]
+        return Movie.objects.order_by('-release_date')[:20]
 
 
 class MovieRetrieveAPI(generics.RetrieveAPIView):
