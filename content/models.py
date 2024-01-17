@@ -66,6 +66,9 @@ class Role(models.Model):
     actor = models.ForeignKey(People, on_delete=models.CASCADE, related_name="actor_roles")
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="castings")
 
+    class Meta:
+        ordering = ('priority',)
+
     def __str__(self):
         return self.actor.name + " - " + self.role
 

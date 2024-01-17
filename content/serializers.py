@@ -13,7 +13,7 @@ class RoleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Role
-        fields = ['actor', 'role']
+        fields = ['actor', 'role', 'priority']
 
 
 class ShowGenreSerializer(serializers.ModelSerializer):

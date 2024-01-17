@@ -146,6 +146,7 @@ class ImportMovie(generics.CreateAPIView):
 
         #set starring
         actors_data = kmdb_data['actors']['actor']
+        priority = 0
         for actor_data in actors_data:
             if actor_data['actorId']:
                 actor, _ = People.objects.get_or_create(
@@ -160,8 +161,10 @@ class ImportMovie(generics.CreateAPIView):
                         Role.objects.create(
                             role=generate_role(staff_datum['staffRole']),
                             actor=actor,
+                            priority=priority,
                             movie=created_movie
                         )
+                priority += 1
 
         #set starring
         for staff_datum in staffs_data:
