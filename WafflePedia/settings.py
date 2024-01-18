@@ -50,6 +50,7 @@ ALLOWED_HOSTS = [
     "WafflePedia-env.eba-wjpwvtcu.ap-northeast-2.elasticbeanstalk.com",
     "127.0.0.1",
     "172.31.10.59",
+    "43.202.20.01",
     "wafflepedia.xyz",
     "d1vexdz72u651e.cloudfront.net",
 ]
