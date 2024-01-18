@@ -13,13 +13,20 @@ class RoleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Role
-        fields = ['actor', 'role']
+        fields = ['actor', 'role', 'priority']
+
+
+class ShowGenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ['genre']
 
 
 class MovieSerializer(serializers.ModelSerializer):
     directors = PeopleInfoSerializer(many=True)
     writers = PeopleInfoSerializer(many=True)
     castings = RoleSerializer(many=True)
+    genres = ShowGenreSerializer(many=True)
 
     class Meta:
         model = Movie

@@ -11,8 +11,8 @@ class Movie(models.Model):
     prod_country = models.CharField(max_length=50)
     poster = models.URLField()
     release_date = models.DateField()
-    cumulative_audience = models.IntegerField()
-    screening = models.BooleanField()
+    cumulative_audience = models.IntegerField(blank=True, null=True)
+    screening = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title_ko
@@ -21,7 +21,7 @@ class Movie(models.Model):
 class Genre(models.Model):
     genre = models.CharField(max_length=50)
     movies = models.ManyToManyField(
-        Movie, related_name="genres"
+        Movie, related_name="genres", blank=True
     )
 
     def __str__(self):
@@ -43,9 +43,9 @@ class People(models.Model):
     peopleCD = models.CharField(max_length=20, primary_key=True)
     name = models.CharField(max_length=50)
     photo = models.FileField(upload_to="people_photos/", blank=True)
-    is_actor = models.BooleanField()
-    is_director = models.BooleanField()
-    is_writer = models.BooleanField()
+    is_actor = models.BooleanField(default=False)
+    is_director = models.BooleanField(default=False)
+    is_writer = models.BooleanField(default=False)
     directed_movies = models.ManyToManyField(
         Movie, related_name="directors", blank=True
     )
@@ -62,8 +62,12 @@ class People(models.Model):
 
 class Role(models.Model):
     role = models.CharField(max_length=50)
+    priority = models.PositiveIntegerField(default=0)
     actor = models.ForeignKey(People, on_delete=models.CASCADE, related_name="actor_roles")
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="castings")
+
+    class Meta:
+        ordering = ('priority',)
 
     def __str__(self):
         return self.actor.name + " - " + self.role
