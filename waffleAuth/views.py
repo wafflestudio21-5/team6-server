@@ -11,6 +11,7 @@ from json.decoder import JSONDecodeError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
+from rest_framework.response import Response
 
 import os
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -159,7 +160,7 @@ def kakao_check(request):
     # 에러 발생 시 중단
     error = token_response_json.get("error", None)
     if error is not None:
-        return token_response_json
+        return Response(token_response_json)
 
 
 
