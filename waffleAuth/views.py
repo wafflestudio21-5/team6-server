@@ -147,6 +147,13 @@ def set_response(accept):
 
     return response
 
+def kakao_check(request):
+    client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
+    code = request.GET.get("code")
+    response_data = {"code!!!": code}
+    response = JsonResponse(response_data)
+    return response
+
 
 def kakao_callback(request):
     client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
