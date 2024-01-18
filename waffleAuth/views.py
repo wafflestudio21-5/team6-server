@@ -150,9 +150,17 @@ def set_response(accept):
 def kakao_check(request):
     client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
     code = request.GET.get("code")
-    response_data = {"code!!!": code}
-    response = JsonResponse(response_data)
-    return response
+
+    token_request = requests.get(
+        f"https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id={client_id}&redirect_uri={KAKAO_CALLBACK_URI}&code={code}"
+    )
+    token_response_json = token_request.json()
+
+    # 에러 발생 시 중단
+    error = token_response_json.get("error", None)
+    if error is not None:
+        return token_response_json
+
 
 
 def kakao_callback(request):
