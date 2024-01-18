@@ -11,7 +11,6 @@ from json.decoder import JSONDecodeError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
-from rest_framework.response import Response
 
 import os
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -25,6 +24,7 @@ from dj_rest_auth.app_settings import api_settings
 from dj_rest_auth.registration.views import RegisterView
 from dj_rest_auth.registration.views import LoginView
 from dj_rest_auth.app_settings import api_settings
+from rest_framework_simplejwt.serializers import TokenBlacklistSerializer
 
 COOKIE_DURATION = 86400
 
@@ -70,7 +70,9 @@ class CookieTokenObtainPairView(TokenObtainPairView):
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         org_refresh_token = request.COOKIES.get('refresh_token')
+        request.data._mutable = True
         request.data["refresh"] = org_refresh_token
+        request.data._mutable = False
         response_data = super().post(request, *args, **kwargs).data
         access_token = response_data.get("access")
         refresh_token = response_data.get("refresh")
@@ -90,6 +92,18 @@ class CookieTokenRefreshView(TokenRefreshView):
                 max_age=COOKIE_DURATION,
             )
 
+        return response
+
+class CustomTokenBlacklistView(TokenBlacklistView):
+    def post(self, request, *args, **kwargs):
+        org_refresh_token = request.COOKIES.get('refresh_token')
+        request.data._mutable = True
+        request.data["refresh"] = org_refresh_token
+        request.data._mutable = False
+        super().post(request, *args, **kwargs)
+        response_data = {"message": "logout succeed"}
+        response = JsonResponse(response_data)
+        response.delete_cookie('refresh_token')
         return response
 
 
@@ -147,21 +161,6 @@ def set_response(accept):
         )
 
     return response
-
-def kakao_check(request):
-    client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
-    code = request.GET.get("code")
-
-    token_request = requests.get(
-        f"https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id={client_id}&redirect_uri={KAKAO_CALLBACK_URI}&code={code}"
-    )
-    token_response_json = token_request.json()
-
-    # 에러 발생 시 중단
-    error = token_response_json.get("error", None)
-    if error is not None:
-        return Response(token_response_json)
-
 
 
 def kakao_callback(request):
