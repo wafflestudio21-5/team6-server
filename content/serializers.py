@@ -27,16 +27,28 @@ class MovieSerializer(serializers.ModelSerializer):
     writers = PeopleInfoSerializer(many=True)
     castings = RoleSerializer(many=True)
     genres = ShowGenreSerializer(many=True)
+    average_rate = serializers.SerializerMethodField()
 
     class Meta:
         model = Movie
         fields = '__all__'
 
+    def get_average_rate(self, obj):
+        if Rating.objects.filter(movie=obj).exists():
+            return round(sum(map(lambda x: x.rate, Rating.objects.filter(movie=obj)))/len(Rating.objects.filter(movie=obj)), 1)
+        return None
+
 
 class MovieListSerializer(serializers.ModelSerializer):
+    average_rate = serializers.SerializerMethodField()
     class Meta:
         model = Movie
         exclude = ('plot', 'runtime', 'screening')
+
+    def get_average_rate(self, obj):
+        if Rating.objects.filter(movie=obj).exists():
+            return round(sum(map(lambda x: x.rate, Rating.objects.filter(movie=obj)))/len(Rating.objects.filter(movie=obj)), 1)
+        return None
 
 
 class RatingSerializer(serializers.ModelSerializer):
