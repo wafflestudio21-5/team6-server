@@ -191,7 +191,7 @@ def kakao_callback(request):
     kakao_account = profile_json.get("kakao_account")
 
     data = {"access_token": access_token, "code": code}
-    accept = requests.post(f"{BASE_URL}auth/kakao/login/finish/", data=data)
+    accept = requests.post(f"{BASE_URL}api/auth/kakao/login/finish/", data=data)
 
     return set_response(accept)
 
