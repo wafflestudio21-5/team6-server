@@ -245,11 +245,11 @@ def naver_callback(request):
 
 class KakaoLogout(TokenBlacklistView):
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-
         client_id = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
-        redirect(
-            f"https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri={REDIRECT_URI}"
+        redirect_uri = os.environ.get("KAKAO_REDIRECT_URI")
+
+        response = redirect(
+            f"https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri={redirect_uri}"
         )
 
         return response
