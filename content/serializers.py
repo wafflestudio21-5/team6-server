@@ -28,6 +28,7 @@ class MovieSerializer(serializers.ModelSerializer):
     castings = RoleSerializer(many=True)
     genres = ShowGenreSerializer(many=True)
     average_rate = serializers.SerializerMethodField()
+    my_rate = serializers.SerializerMethodField()
 
     class Meta:
         model = Movie
@@ -39,9 +40,21 @@ class MovieSerializer(serializers.ModelSerializer):
                 sum(map(lambda x: x.rate, Rating.objects.filter(movie=obj))) / len(Rating.objects.filter(movie=obj)), 1)
         return None
 
+    def get_my_rate(self, obj):
+        request = self.context.get('request')
+        if request.user.is_authenticated:
+            if Rating.objects.filter(movie=obj, created_by=request.user).exists():
+                my_rating = Rating.objects.get(movie=obj, created_by=request.user)
+                context = dict()
+                context['id'] = my_rating.id
+                context['my_rate'] = my_rating.rate
+                return context
+        return None
+
 
 class MovieListSerializer(serializers.ModelSerializer):
     average_rate = serializers.SerializerMethodField()
+    my_rate = serializers.SerializerMethodField()
 
     class Meta:
         model = Movie
@@ -51,6 +64,17 @@ class MovieListSerializer(serializers.ModelSerializer):
         if Rating.objects.filter(movie=obj).exists():
             return round(
                 sum(map(lambda x: x.rate, Rating.objects.filter(movie=obj))) / len(Rating.objects.filter(movie=obj)), 1)
+        return None
+
+    def get_my_rate(self, obj):
+        request = self.context.get('request')
+        if request.user.is_authenticated:
+            if Rating.objects.filter(movie=obj, created_by=request.user).exists():
+                my_rating = Rating.objects.get(movie=obj, created_by=request.user)
+                context = dict()
+                context['id'] = my_rating.id
+                context['my_rate'] = my_rating.rate
+                return context
         return None
 
 

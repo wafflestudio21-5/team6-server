@@ -12,6 +12,7 @@ from comment.permissions import IsOwnerOrReadOnly
 
 from decimal import Decimal
 
+
 class MovieListAPI(generics.ListAPIView):
     serializer_class = MovieListSerializer
     pagination_class = MoviePageNumberPagination
@@ -60,6 +61,7 @@ class RatingRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset = Rating.objects.all()
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsOwnerOrReadOnly,)
+
 
 '''
 class RatingAPI(APIView):
