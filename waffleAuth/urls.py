@@ -22,7 +22,7 @@ urlpatterns = [
         CookieTokenRefreshView.as_view(),
         name="token_refresh",
     ),
-    path("token/logout/", TokenBlacklistView.as_view(), name="token_blacklist"),
+    path("token/logout/", CustomTokenBlacklistView.as_view(), name="token_blacklist"),
     # for registration
     path("register/", include("dj_rest_auth.registration.urls")),
     path("token/register/", CustomRegisterView.as_view(), name='custom-register'),
