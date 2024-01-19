@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import *
+from .validators import decimal_choices_validator
 
 
 class PeopleInfoSerializer(serializers.ModelSerializer):
@@ -72,7 +73,6 @@ class MovieListSerializer(serializers.ModelSerializer):
             if Rating.objects.filter(movie=obj, created_by=request.user).exists():
                 my_rating = Rating.objects.get(movie=obj, created_by=request.user)
                 context = dict()
-                context['id'] = my_rating.id
                 context['my_rate'] = my_rating.rate
                 return context
         return None
@@ -89,4 +89,4 @@ class RatingSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['rate'].validators = []
+        self.fields['rate'].validators = [decimal_choices_validator]
