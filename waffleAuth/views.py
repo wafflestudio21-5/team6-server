@@ -18,19 +18,16 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.views import TokenBlacklistView
 from django.http import JsonResponse
 import json
-from dj_rest_auth.registration.views import RegisterView
-from dj_rest_auth.app_settings import api_settings
 
 from dj_rest_auth.registration.views import RegisterView
-from dj_rest_auth.registration.views import LoginView
 from dj_rest_auth.app_settings import api_settings
-from rest_framework_simplejwt.serializers import TokenBlacklistSerializer
 
 COOKIE_DURATION = 86400
 
 
 class CustomRegisterView(RegisterView):
     serializer_class = CustomRegisterSerializer
+
     def get_response_data(self, user):
         response_data = super().get_response_data(user)
 
@@ -94,6 +91,7 @@ class CookieTokenRefreshView(TokenRefreshView):
 
         return response
 
+
 class CustomTokenBlacklistView(TokenBlacklistView):
     def post(self, request, *args, **kwargs):
         org_refresh_token = request.COOKIES.get('refresh_token')
@@ -113,7 +111,6 @@ BASE_URL = os.environ.get("BASE_URL")
 KAKAO_CALLBACK_URI = os.environ.get("KAKAO_CALLBACK_URI")
 NAVER_CALLBACK_URI = BASE_URL + "auth/naver/callback/"
 REDIRECT_URI = BASE_URL + "auth/"
-
 
 
 def kakao_login(request):
@@ -268,6 +265,7 @@ class NaverLogout(TokenBlacklistView):
 
         return response
 
+
 class KakaoLogin(SocialLoginView):
     adapter_class = kakao_view.KakaoOAuth2Adapter
     callback_url = KAKAO_CALLBACK_URI
@@ -284,6 +282,7 @@ class NaverLogin(SocialLoginView):
 class MyProtectedView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+
 
     def get(self, request):
         response = JsonResponse({"message": "You are authenticated"})
