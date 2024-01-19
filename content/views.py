@@ -1,11 +1,16 @@
 from rest_framework import generics, status
+from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import *
 from .serializers import *
 from .paginations import *
+from comment.permissions import IsOwnerOrReadOnly
 
+from decimal import Decimal
 
 class MovieListAPI(generics.ListAPIView):
     serializer_class = MovieListSerializer
@@ -27,7 +32,39 @@ class MovieRetrieveAPI(generics.RetrieveAPIView):
     serializer_class = MovieSerializer
 
 
+class RatingAPI(generics.ListCreateAPIView):
+    serializer_class = RatingSerializer
+    authentication_classes = [JWTAuthentication]
+
+    def get_queryset(self, *args, **kwargs):
+        movie = get_object_or_404(Movie, pk=self.kwargs.get('pk'))
+        return Rating.objects.filter(movie=movie)
+
+    def create(self, request, *args, **kwargs):
+        request.data._mutable = True
+        request.data['rate'] = Decimal(request.data['rate'])
+        request.data._mutable = False
+        print(request.data)
+        return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        print(self.request.user, self.kwargs['pk'])
+        serializer.save(
+            created_by=self.request.user,
+            movie=Movie.objects.get(pk=self.kwargs['pk'])
+        )
+
+
+class RatingRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = RatingSerializer
+    queryset = Rating.objects.all()
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsOwnerOrReadOnly,)
+
+'''
 class RatingAPI(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     def get_object(self, pk):
         movie = generics.get_object_or_404(Movie, pk=pk)
         return movie
@@ -37,3 +74,4 @@ class RatingAPI(APIView):
         ratings = round(sum(map(lambda x: x.rate,Rating.objects.filter(movie=movie)))/len(Rating.objects.filter(movie=movie)),1)
         data = {'movieCD': pk, 'rating': ratings}
         return Response(data, status=status.HTTP_200_OK)
+'''

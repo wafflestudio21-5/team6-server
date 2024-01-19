@@ -6,4 +6,5 @@ urlpatterns = [
     path('<str:pk>', MovieRetrieveAPI.as_view()),
     path('<str:pk>/comments/', include('comment.urls')),
     path('<str:pk>/rate', RatingAPI.as_view()),
+    path('rates/<int:pk>', RatingRetrieveUpdateDestroyAPI.as_view()),
 ]
