@@ -25,6 +25,10 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
+        extra_kwargs = {
+            'created_by': {'required': False, 'allow_null': True},
+            'movie': {'required': False, 'allow_null': True},
+        }
 
     def get_like_count(self, obj):
         return obj.likes.all().count()
