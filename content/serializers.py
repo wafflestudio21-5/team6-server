@@ -35,23 +35,34 @@ class MovieSerializer(serializers.ModelSerializer):
 
     def get_average_rate(self, obj):
         if Rating.objects.filter(movie=obj).exists():
-            return round(sum(map(lambda x: x.rate, Rating.objects.filter(movie=obj)))/len(Rating.objects.filter(movie=obj)), 1)
+            return round(
+                sum(map(lambda x: x.rate, Rating.objects.filter(movie=obj))) / len(Rating.objects.filter(movie=obj)), 1)
         return None
 
 
 class MovieListSerializer(serializers.ModelSerializer):
     average_rate = serializers.SerializerMethodField()
+
     class Meta:
         model = Movie
         exclude = ('plot', 'runtime', 'screening')
 
     def get_average_rate(self, obj):
         if Rating.objects.filter(movie=obj).exists():
-            return round(sum(map(lambda x: x.rate, Rating.objects.filter(movie=obj)))/len(Rating.objects.filter(movie=obj)), 1)
+            return round(
+                sum(map(lambda x: x.rate, Rating.objects.filter(movie=obj))) / len(Rating.objects.filter(movie=obj)), 1)
         return None
 
 
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
-        fields = '__all__'
+        fields = ['id', 'created_by', 'rate', 'movie']
+        extra_kwargs = {
+            'created_by': {'required': False, 'allow_null': True},
+            'movie': {'required': False, 'allow_null': True},
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['rate'].validators = []
