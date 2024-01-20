@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from waffleAuth.models import WaffleUser
-from content.models import Movie, Rating, State
+from content.models import Movie, Rating, State, People
 from comment.models import Comment, Like
 # Create your views here.
 from rest_framework.generics import RetrieveAPIView, ListAPIView, RetrieveUpdateAPIView
@@ -136,5 +136,5 @@ class UserMovieStateListView(ListAPIView):
 
     def get_queryset(self):
         user_id = self.kwargs.get("user_id")
-        state = self.kwargs.get("state")
-        return State.objects.filter(user_id=user_id, state=state)
+        user_state = self.kwargs.get("user_state")
+        return State.objects.filter(user_id=user_id, user_state=user_state)
