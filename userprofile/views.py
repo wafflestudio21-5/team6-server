@@ -3,14 +3,16 @@ from waffleAuth.models import WaffleUser
 from content.models import Movie, Rating, State
 from comment.models import Comment, Like
 # Create your views here.
-from rest_framework.generics import RetrieveAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
-from .serializers import StateSerializer, UserRatingSerializer, CommentSerializer, UserDetailSerializer, UserSerializer
+from rest_framework.generics import RetrieveAPIView, ListAPIView, DestroyAPIView, RetrieveUpdateAPIView
+from .serializers import StateSerializer, UserRatingSerializer, CommentSerializer, UserDetailSerializer, UserSerializer, UserDeleteSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenBlacklistView
+from django.http import JsonResponse
 
 
 class UserDetailView(RetrieveAPIView):
@@ -21,7 +23,7 @@ class UserDetailView(RetrieveAPIView):
     lookup_field = 'pk'
 
 
-class UserMyPageDetailView(RetrieveUpdateDestroyAPIView):
+class UserMyPageDetailView(RetrieveUpdateAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = UserDetailSerializer
@@ -29,9 +31,34 @@ class UserMyPageDetailView(RetrieveUpdateDestroyAPIView):
     def get_object(self):
         return self.request.user
 
+
+class UserMyPageDeleteView(DestroyAPIView, TokenBlacklistView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserDeleteSerializer
+
+    def get_object(self):
+        return self.request.user
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        return self.perform_destroy(instance)
+
     def perform_destroy(self, instance):
         user = WaffleUser.objects.get(id=self.request.user.id)
         user.delete()
+        return self.post(self.request)
+
+    def post(self, request, *args, **kwargs):
+        org_refresh_token = request.COOKIES.get('refresh_token')
+        request.data._mutable = True
+        request.data["refresh"] = org_refresh_token
+        request.data._mutable = False
+        super().post(request, *args, **kwargs)
+        response_data = {"message": "tokens deleted"}
+        response = JsonResponse(response_data)
+        response.delete_cookie('refresh_token')
+        return response
 
 
 class AddFollowView(APIView):

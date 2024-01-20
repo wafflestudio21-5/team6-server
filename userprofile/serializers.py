@@ -30,6 +30,11 @@ class UserDetailSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class UserDeleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WaffleUser
+        fields = ['id']
+
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
