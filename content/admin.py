@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Genre, Rating, Movie, Role, People, State
+from .models import Genre, Rating, Movie, Role, People, State, Carousel
 from django.db.models import ManyToManyField
 from django.forms import CheckboxSelectMultiple
 
@@ -50,9 +50,16 @@ class PeopleAdmin(admin.ModelAdmin):
     }
 
 
+class CarouselAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        ManyToManyField: {"widget": CheckboxSelectMultiple}
+    }
+
+
 admin.site.register(Movie, MovieAdmin)
 admin.site.register(Genre, GenreAdmin)
 admin.site.register(People, PeopleAdmin)
 admin.site.register(Rating)
 admin.site.register(Role)
 admin.site.register(State)
+admin.site.register(Carousel, CarouselAdmin)
