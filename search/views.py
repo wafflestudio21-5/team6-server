@@ -5,7 +5,10 @@ from content.models import Movie
 
 from rest_framework.generics import ListAPIView
 
-class UserSearchListView(ListAPIView):
+
+# query로 받도록
+
+class UserSearchListAPIView(ListAPIView):
     serializer_class = UserSerializer
 
     def get_queryset(self):
@@ -14,7 +17,7 @@ class UserSearchListView(ListAPIView):
         return user.following.all()
 
 
-class MovieSearchListView(ListAPIView):
+class MovieSearchListAPIView(ListAPIView):
     serializer_class = UserSerializer
 
     def get_queryset(self):
@@ -22,7 +25,7 @@ class MovieSearchListView(ListAPIView):
         user = WaffleUser.objects.get(pk=user_id)
         return user.following.all()
 
-class KeywordSearchListView(ListAPIView):
+class KeywordSearchListAPIView(ListAPIView):
     serializer_class = UserSerializer
 
     def get_queryset(self):
