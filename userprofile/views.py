@@ -158,20 +158,28 @@ class UserCommentsListView(ListAPIView):
             'low-rating': 'rate_count',
             'created': '-created_at'
         }
-        queryset = Comment.objects.filter(created_by_id=user_id).annotate(
-            like_count=Count('likes'),
-            rate_count=F('rating__rate')
-        )
+        rate = self.request.query_params.get('rate')
+        order_option = self.request.query_params.get('order')
+
+        if rate is not None:
+            queryset = Comment.objects.filter(created_by_id=user_id, rating=rate).annotate(
+                like_count=Count('likes'),
+                rate_count=F('rating__rate')
+            )
+        else:
+            queryset = Comment.objects.filter(created_by_id=user_id).annotate(
+                like_count=Count('likes'),
+                rate_count=F('rating__rate')
+            )
+
         queryset = queryset.order_by(order_options['like'])
 
-        order_option = self.request.query_params.get('order')
         if order_option in order_options:
-            if order_option == order_options['high-rating'] or order_options['low-rating']:
-                queryset = queryset.exclude(rating__isnull=True)
+            if order_option in ['high-rating', 'low-rating']:
+                queryset = queryset.filter(rating__isnull=False)
             queryset = queryset.order_by(order_options[order_option])
 
         return queryset
-
 
 class UserRatingListView(ListAPIView):
     serializer_class = UserRatingSerializer
@@ -200,4 +208,3 @@ class UserLikedCommentsListView(ListAPIView):
         user = self.request.user
         liked_comments = Comment.objects.filter(likes__created_by=user)
         return liked_comments
-
