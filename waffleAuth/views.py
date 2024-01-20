@@ -16,7 +16,7 @@ import os
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.views import TokenBlacklistView
-from django.http import JsonResponse
+from django.http import JsonResponse, QueryDict
 import json
 
 from dj_rest_auth.registration.views import RegisterView
@@ -67,9 +67,11 @@ class CookieTokenObtainPairView(TokenObtainPairView):
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         org_refresh_token = request.COOKIES.get('refresh_token')
-        request.data._mutable = True
+        if isinstance(request.data, QueryDict):
+            request.data._mutable = True
         request.data["refresh"] = org_refresh_token
-        request.data._mutable = False
+        if isinstance(request.data, QueryDict):
+            request.data._mutable = False
         response_data = super().post(request, *args, **kwargs).data
         access_token = response_data.get("access")
         refresh_token = response_data.get("refresh")
@@ -95,9 +97,11 @@ class CookieTokenRefreshView(TokenRefreshView):
 class CustomTokenBlacklistView(TokenBlacklistView):
     def post(self, request, *args, **kwargs):
         org_refresh_token = request.COOKIES.get('refresh_token')
-        request.data._mutable = True
+        if isinstance(request.data, QueryDict):
+            request.data._mutable = True
         request.data["refresh"] = org_refresh_token
-        request.data._mutable = False
+        if isinstance(request.data, QueryDict):
+            request.data._mutable = False
         super().post(request, *args, **kwargs)
         response_data = {"message": "logout succeed"}
         response = JsonResponse(response_data)
