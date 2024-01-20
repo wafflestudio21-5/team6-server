@@ -12,6 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = WaffleUser
         fields = ['id', 'username', 'nickname', 'bio', 'profile_photo', 'background_photo', 'followers_count', 'following_count']
 
+
 class UserSummarySerializer(serializers.ModelSerializer):
 
     class Meta:

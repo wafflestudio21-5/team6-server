@@ -2,6 +2,7 @@ from django.shortcuts import render
 from waffleAuth.models import WaffleUser
 from content.models import Movie, Rating, State, People
 from comment.models import Comment, Like
+from django.db.models import Count, F
 # Create your views here.
 from rest_framework.generics import RetrieveAPIView, ListAPIView, DestroyAPIView, RetrieveUpdateAPIView
 from .serializers import StateSerializer, UserRatingSerializer, CommentSerializer, UserDetailSerializer, UserSerializer, UserDeleteSerializer
@@ -151,10 +152,27 @@ class UserCommentsListView(ListAPIView):
 
     def get_queryset(self):
         user_id = self.kwargs['pk']
-        return Comment.objects.filter(created_by_id=user_id)
+        order_options = {
+            'like': '-like_count',
+            'high-rating': '-rate_count',
+            'low-rating': 'rate_count',
+            'created': '-created_at'
+        }
+        queryset = Comment.objects.filter(created_by_id=user_id).annotate(
+            like_count=Count('likes'),
+            rate_count=F('rating__rate')
+        )
+        queryset = queryset.order_by(order_options['like'])
+
+        order_option = self.request.query_params.get('order')
+        if order_option in order_options:
+            if order_option == order_options['high-rating'] or order_options['low-rating']:
+                queryset = queryset.exclude(rating__isnull=True)
+            queryset = queryset.order_by(order_options[order_option])
+
+        return queryset
 
 
-# views.py
 class UserRatingListView(ListAPIView):
     serializer_class = UserRatingSerializer
 
