@@ -14,6 +14,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenBlacklistView
 from django.http import JsonResponse, QueryDict
 import requests
+import os
+import json
 
 
 class UserDetailView(RetrieveAPIView):
@@ -64,20 +66,75 @@ class UserMyPageDeleteView(DestroyAPIView, TokenBlacklistView):
         return response
 
 
+class KakaoTokenRefreshView(APIView):
+    #authentication_classes = [JWTAuthentication]
+    #permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        # Retrieve your REST API KEY and USER_REFRESH_TOKEN
+        # It's a good practice to store sensitive data like API keys in environment variables
+        rest_api_key = os.environ.get("SOCIAL_AUTH_KAKAO_CLIENT_ID")
+        kakao_refresh_token = request.COOKIES.get('kakao_refresh_token')
+
+        if not kakao_refresh_token:
+            return Response({"error": "Missing kakao_refresh_token"}, status=status.HTTP_400_BAD_REQUEST)
+
+        url = "https://kauth.kakao.com/oauth/token"
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+        data = {
+            "grant_type": "refresh_token",
+            "client_id": rest_api_key,
+            "refresh_token": kakao_refresh_token,
+        }
+
+        response = requests.post(url, headers=headers, data=data)
+
+        if response.status_code == 200:
+
+            return JsonResponse(response.json(), safe=False)
+        else:
+            return JsonResponse(response.json(), status=response.status_code, safe=False)
+
 class KakaoUnlinkUserView(UserMyPageDeleteView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def get_object(self):
+        return self.request.user
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        return self.perform_destroy(instance)
+
+    def perform_destroy(self, instance):
+        user = WaffleUser.objects.get(id=self.request.user.id)
+        user.delete()
+        return self.post(self.request)
+
     def post(self, request, *args, **kwargs):
 
         user = request.user
-        token = request.auth
+        #token = request.auth
+        kakao_refresh_token = request.COOKIES.get('kakao_refresh_token')
+        token_refresh_view = KakaoTokenRefreshView()
+        token_refresh_view.request = request
+        token_refresh_view.args = args
+        token_refresh_view.kwargs = kwargs
+        kakao_refresh_response = token_refresh_view.get(request, *args, **kwargs)
+        kakao_refresh_response_content = kakao_refresh_response.content  # Get the JSON string from the response
+        kakao_refresh_response_json = json.loads(
+            kakao_refresh_response_content)  # Deserialize the JSON string into a Python dictionary
+        #print("\nkakao_refresh_response_json:", kakao_refresh_response_json)
+        kakao_access_token = kakao_refresh_response_json.get("access_token")
 
-        if not token:
+        if not kakao_access_token:
             return Response({"error": "Token is missing or invalid"}, status=401)
 
+        #print("\ntoken: ", kakao_access_token)
         headers = {
-            "Authorization":f"Bearer {token}",
+            "Authorization":f"Bearer {kakao_access_token}",
             #"Content-Type": "application/x-www-form-urlencoded",
         }
 
@@ -87,9 +144,8 @@ class KakaoUnlinkUserView(UserMyPageDeleteView):
         if response.status_code != 200:
             return JsonResponse(response.json(), status=response.status_code, safe=False)
         else:
-            '''
+
             super().post(request, *args, **kwargs)
-            '''
             return JsonResponse(response.json(), status=response.status_code, safe=False)
 
 
