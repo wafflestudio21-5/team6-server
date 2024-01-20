@@ -37,10 +37,19 @@ class UserDeleteSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    likes_count = serializers.SerializerMethodField()
+    reply_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Comment
-        fields = ['id', 'movie', 'content', 'rating', 'created_at', 'updated_at', 'likes']
+        fields = ['id', 'movie', 'content', 'rating', 'created_at', 'updated_at', 'likes_count', 'reply_count']
+        depth = 1 #영화 정보 보여주기
 
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+
+    def get_reply_count(self, obj):
+        return obj.reply_set.count()
 
 # serializers.py
 class MovieSerializer(serializers.ModelSerializer):
@@ -58,8 +67,8 @@ class UserRatingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rating
-        fields = ['id', 'rating', 'movie', 'updated_at', 'created_by']
-        depth = 1  # This will nest the movie information one level deep
+        fields = ['id', 'rate', 'movie']
+        depth = 1  # 영화 정보 보여주기
 
 
 class StateSerializer(serializers.ModelSerializer):
@@ -67,4 +76,12 @@ class StateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = State
-        fields = ['id', 'movie', 'state']
+        fields = ['id', 'movie', 'user_state']
+        extra_kwargs = {
+            'user_state': {'read_only': True}
+        }
+
+    def to_representation(self, instance):
+        representation = super(StateSerializer, self).to_representation(instance)
+        representation['user_state_display'] = instance.get_user_state_display()
+        return representation
