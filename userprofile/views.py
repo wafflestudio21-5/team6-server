@@ -67,8 +67,8 @@ class UserMyPageDeleteView(DestroyAPIView, TokenBlacklistView):
 
 
 class KakaoTokenRefreshView(APIView):
-    #authentication_classes = [JWTAuthentication]
-    #permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         # Retrieve your REST API KEY and USER_REFRESH_TOKEN
