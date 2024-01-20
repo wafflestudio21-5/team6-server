@@ -90,3 +90,11 @@ class RatingSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['rate'].validators = [decimal_choices_validator]
+
+
+class CarouselSerializer(serializers.ModelSerializer):
+    movies = MovieListSerializer(many=True)
+
+    class Meta:
+        model = Carousel
+        fields = '__all__'

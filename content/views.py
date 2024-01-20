@@ -77,3 +77,9 @@ class RatingAPI(APIView):
         data = {'movieCD': pk, 'rating': ratings}
         return Response(data, status=status.HTTP_200_OK)
 '''
+
+
+class CarouselRetrieveAPI(generics.RetrieveAPIView):
+    queryset = Carousel.objects.all()
+    serializer_class = CarouselSerializer
+
