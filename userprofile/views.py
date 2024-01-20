@@ -171,3 +171,15 @@ class UserMovieStateListView(ListAPIView):
         user_id = self.kwargs.get("user_id")
         user_state = self.kwargs.get("user_state")
         return State.objects.filter(user_id=user_id, user_state=user_state)
+
+
+class UserLikedCommentsListView(ListAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        liked_comments = Comment.objects.filter(likes__created_by=user)
+        return liked_comments
+

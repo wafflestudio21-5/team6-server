@@ -7,6 +7,7 @@ from .views import *
 urlpatterns = [
     path('mypage/', UserMyPageDetailView.as_view(), name='user-detail'),
     path('mypage/delete/', UserMyPageDeleteView.as_view(), name='user-delete'),
+    path('mypage/likes/comments/', UserLikedCommentsListView.as_view(), name='user-liked-comments'),
     path('<int:pk>/', UserDetailView.as_view(), name='user-detail'),
     path('<int:user_id>/followers/', FollowersListView.as_view(), name='user-followers'),
     path('<int:user_id>/followings/', FollowingsListView.as_view(), name='user-following'),
