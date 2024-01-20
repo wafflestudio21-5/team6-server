@@ -13,6 +13,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenBlacklistView
 from django.http import JsonResponse, QueryDict
+import requests
 
 
 class UserDetailView(RetrieveAPIView):
@@ -61,6 +62,36 @@ class UserMyPageDeleteView(DestroyAPIView, TokenBlacklistView):
         response = JsonResponse(response_data)
         response.delete_cookie('refresh_token')
         return response
+
+
+class KakaoUnlinkUserView(UserMyPageDeleteView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+
+        user = request.user
+        token = request.auth
+
+        if not token:
+            return Response({"error": "Token is missing or invalid"}, status=401)
+
+        headers = {
+            "Authorization":f"Bearer {token}",
+            #"Content-Type": "application/x-www-form-urlencoded",
+        }
+
+        url = "https://kapi.kakao.com/v1/user/unlink"
+        response = requests.post(url, headers=headers)
+
+        if response.status_code != 200:
+            return JsonResponse(response.json(), status=response.status_code, safe=False)
+        else:
+            '''
+            super().post(request, *args, **kwargs)
+            '''
+            return JsonResponse(response.json(), status=response.status_code, safe=False)
+
 
 
 class AddFollowView(APIView):

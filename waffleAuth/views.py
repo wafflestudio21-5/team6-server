@@ -180,7 +180,7 @@ def kakao_callback(request):
         raise JSONDecodeError(error)
 
     access_token = token_response_json.get("access_token")
-
+    print("설마: ", access_token)
     # access token으로 카카오톡 프로필 요청
     profile_request = requests.post(
         "https://kapi.kakao.com/v2/user/me",
@@ -212,6 +212,7 @@ def naver_callback(request):
         raise JSONDecodeError(error)
 
     access_token = token_response_json.get("access_token")
+
 
     # access token으로 네이버 프로필 요청
     profile_request = requests.post(
@@ -290,6 +291,8 @@ class MyProtectedView(APIView):
 
     def get(self, request):
         response = JsonResponse({"message": "You are authenticated"})
+        token = request.auth
+        print(token)
         return response
 
 
