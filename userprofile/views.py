@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from waffleAuth.models import WaffleUser
-from content.models import Movie, Rating, State
+from content.models import Movie, Rating, State, People
 from comment.models import Comment, Like
 # Create your views here.
 from rest_framework.generics import RetrieveAPIView, ListAPIView, DestroyAPIView, RetrieveUpdateAPIView
@@ -107,14 +107,12 @@ class KakaoUnlinkUserView(UserMyPageDeleteView):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         return self.perform_destroy(instance)
-
     def perform_destroy(self, instance):
         user = WaffleUser.objects.get(id=self.request.user.id)
         user.delete()
         return self.post(self.request)
 
     def post(self, request, *args, **kwargs):
-
         user = request.user
         #token = request.auth
         kakao_refresh_token = request.COOKIES.get('kakao_refresh_token')
@@ -147,8 +145,7 @@ class KakaoUnlinkUserView(UserMyPageDeleteView):
 
             super().post(request, *args, **kwargs)
             return JsonResponse(response.json(), status=response.status_code, safe=False)
-
-
+          
 
 class AddFollowView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -256,5 +253,5 @@ class UserMovieStateListView(ListAPIView):
 
     def get_queryset(self):
         user_id = self.kwargs.get("user_id")
-        state = self.kwargs.get("state")
-        return State.objects.filter(user_id=user_id, state=state)
+        user_state = self.kwargs.get("user_state")
+        return State.objects.filter(user_id=user_id, user_state=user_state)

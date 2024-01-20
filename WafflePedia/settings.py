@@ -92,6 +92,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "allow_cidr.middleware.AllowCIDRMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -245,3 +246,6 @@ CORS_ALLOW_HEADERS = [
     'Authorization',
 ]
 CORS_ALLOW_ORIGIN = "https://d1vexdz72u651e.cloudfront.net"
+
+#CIDR
+ALLOWED_CIDR_NETS = ['172.31.0.0/16']
