@@ -85,3 +85,13 @@ class State(models.Model):
 
     def __str__(self):
         return self.movie.title_ko + " - " + self.user.nickname
+
+
+class Carousel(models.Model):
+    title = models.CharField(max_length=50)
+    movies = models.ManyToManyField(
+        Movie, related_name="carousels", blank=True
+    )
+
+    def __str__(self):
+        return self.title
