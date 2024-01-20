@@ -16,5 +16,4 @@ urlpatterns = [
     path('<int:user_id>/movies/watching/', UserMovieStateListView.as_view(), {'state': 'watching'}, name='user-watching-movies'),
     path('<int:user_id>/movies/want_to_watch/', UserMovieStateListView.as_view(), {'state': 'want_to_watch'}, name='user-want-to-watch-movies'),
     path('<int:user_id>/movies/not_interested/', UserMovieStateListView.as_view(), {'state': 'not_interested'}, name='user-not-interested-movies'),
-
     ]

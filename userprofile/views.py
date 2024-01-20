@@ -14,8 +14,8 @@ from rest_framework.views import APIView
 
 
 class UserDetailView(RetrieveAPIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    #authentication_classes = [JWTAuthentication]
+    #permission_classes = [IsAuthenticated]
     queryset = WaffleUser.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'pk'
