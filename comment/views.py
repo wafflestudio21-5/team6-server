@@ -1,8 +1,12 @@
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import get_object_or_404
-from rest_framework import generics
-from django.db.models import Count, F
+from rest_framework import generics, status
+from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.response import Response
+
+from django.db.models import Count, F
+from django.contrib.contenttypes.models import ContentType
 
 from .serializers import *
 from .paginations import *
@@ -49,3 +53,17 @@ class CommentRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CommentSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsOwnerOrReadOnly,)
+
+
+class ProcessCommentLikeAPI(APIView):
+    def post(self, request, *args, **kwargs):
+        like, created = Like.objects.get_or_create(
+            created_by=self.request.user,
+            object_id=self.kwargs.get('object_id'),
+            content_type_id=ContentType.objects.get(model='comment').id,
+        )
+        if not created:
+            like.delete()
+
+        return Response({"message": "success"}, status=status.HTTP_200_OK,)
+
