@@ -67,9 +67,11 @@ class CookieTokenObtainPairView(TokenObtainPairView):
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         org_refresh_token = request.COOKIES.get('refresh_token')
-        request.data._mutable = True
+        if isinstance(request.data, QueryDict):
+            request.data._mutable = True
         request.data["refresh"] = org_refresh_token
-        request.data._mutable = False
+        if isinstance(request.data, QueryDict):
+            request.data._mutable = False
         response_data = super().post(request, *args, **kwargs).data
         access_token = response_data.get("access")
         refresh_token = response_data.get("refresh")
