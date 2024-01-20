@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenBlacklistView
-from django.http import JsonResponse
+from django.http import JsonResponse, QueryDict
 
 
 class UserDetailView(RetrieveAPIView):
@@ -51,9 +51,11 @@ class UserMyPageDeleteView(DestroyAPIView, TokenBlacklistView):
 
     def post(self, request, *args, **kwargs):
         org_refresh_token = request.COOKIES.get('refresh_token')
-        request.data._mutable = True
+        if isinstance(request.data, QueryDict):
+            request.data._mutable = True
         request.data["refresh"] = org_refresh_token
-        request.data._mutable = False
+        if isinstance(request.data, QueryDict):
+            request.data._mutable = False
         super().post(request, *args, **kwargs)
         response_data = {"message": "tokens deleted"}
         response = JsonResponse(response_data)
