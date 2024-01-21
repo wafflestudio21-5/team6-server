@@ -31,7 +31,7 @@ class SearchListAPIView(ListAPIView):
                 query_lists = WaffleUser.objects.all()  #왓챠피디아에서는 키워드 없으면 검색 불가
         else:
             if query:
-                query_lists = Movie.objects.filter(title_ko__icontains=query)
+                query_lists = Movie.objects.filter(Q(title_ko__icontains=query) | Q(title_original__icontains=query))
             else:
                 query_lists = Movie.objects.all() #왓챠피디아에서는 키워드 없으면 검색 불가
         return query_lists
