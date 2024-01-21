@@ -131,7 +131,7 @@ def naver_login(request):
     )
 
 
-def set_response(accept):
+def set_response(accept, kakao_refresh_token):
     accept_status = accept.status_code
     # not accepted
     if accept_status != 200:
@@ -160,6 +160,16 @@ def set_response(accept):
             domain=".d1vexdz72u651e.cloudfront.net",
             max_age=COOKIE_DURATION,
         )
+    if kakao_refresh_token:
+        response.set_cookie(
+            "kakao_refresh_token",
+            kakao_refresh_token,
+            httponly=False,
+            samesite="None",
+            secure=True,
+            domain=".d1vexdz72u651e.cloudfront.net",
+            max_age=COOKIE_DURATION,
+        )
 
     return response
 
@@ -180,6 +190,9 @@ def kakao_callback(request):
         raise JSONDecodeError(error)
 
     access_token = token_response_json.get("access_token")
+    kakao_refresh_token = token_response_json.get("refresh_token")
+    print("kakao_access: ", access_token)
+    print("kakao_refresh: ", kakao_refresh_token)
 
     # access token으로 카카오톡 프로필 요청
     profile_request = requests.post(
@@ -193,7 +206,7 @@ def kakao_callback(request):
     data = {"access_token": access_token, "code": code}
     accept = requests.post(f"{BASE_URL}api/auth/kakao/login/finish/", data=data)
 
-    return set_response(accept)
+    return set_response(accept, kakao_refresh_token)
 
 
 def naver_callback(request):
@@ -212,6 +225,7 @@ def naver_callback(request):
         raise JSONDecodeError(error)
 
     access_token = token_response_json.get("access_token")
+
 
     # access token으로 네이버 프로필 요청
     profile_request = requests.post(
@@ -290,11 +304,13 @@ class MyProtectedView(APIView):
 
     def get(self, request):
         response = JsonResponse({"message": "You are authenticated"})
+        token = request.auth
+        print(token)
         return response
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    #authentication_classes = [JWTAuthentication]
+    #permission_classes = [IsAuthenticated]
     queryset = WaffleUser.objects.all()
     serializer_class = UserSerializer
