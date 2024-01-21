@@ -4,7 +4,6 @@ from rest_framework import urls
 from .views import *
 
 urlpatterns = [
-    path('users/',  UserSearchListAPIView.as_view(), name='user-search'), #query로 받도록
-    path('movies/', MovieSearchListAPIView.as_view(), name='movie-search'),
+    path('',  SearchListAPIView.as_view(), name='search'), #query로 받도록
     path('keyword/', KeywordSearchListAPIView.as_view(), name='keyword-search'),
 ]
