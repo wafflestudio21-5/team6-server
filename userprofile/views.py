@@ -2,6 +2,7 @@ from django.shortcuts import render
 from waffleAuth.models import WaffleUser
 from content.models import Movie, Rating, State, People
 from comment.models import Comment, Like
+from django.db.models import Count, F
 # Create your views here.
 from rest_framework.generics import RetrieveAPIView, ListAPIView, DestroyAPIView, RetrieveUpdateAPIView
 from .serializers import StateSerializer, UserRatingSerializer, CommentSerializer, UserDetailSerializer, UserSerializer, UserDeleteSerializer
@@ -235,10 +236,35 @@ class UserCommentsListView(ListAPIView):
 
     def get_queryset(self):
         user_id = self.kwargs['pk']
-        return Comment.objects.filter(created_by_id=user_id)
+        order_options = {
+            'like': '-like_count',
+            'high-rating': '-rate_count',
+            'low-rating': 'rate_count',
+            'created': '-created_at'
+        }
+        rate = self.request.query_params.get('rate')
+        order_option = self.request.query_params.get('order')
 
+        if rate is not None:
+            queryset = Comment.objects.filter(created_by_id=user_id, rating=rate).annotate(
+                like_count=Count('likes'),
+                rate_count=F('rating__rate')
+            )
+        else:
+            queryset = Comment.objects.filter(created_by_id=user_id).annotate(
+                like_count=Count('likes'),
+                rate_count=F('rating__rate')
+            )
 
-# views.py
+        queryset = queryset.order_by(order_options['like'])
+
+        if order_option in order_options:
+            if order_option in ['high-rating', 'low-rating']:
+                queryset = queryset.filter(rating__isnull=False)
+            queryset = queryset.order_by(order_options[order_option])
+
+        return queryset
+
 class UserRatingListView(ListAPIView):
     serializer_class = UserRatingSerializer
 
@@ -255,3 +281,14 @@ class UserMovieStateListView(ListAPIView):
         user_id = self.kwargs.get("user_id")
         user_state = self.kwargs.get("user_state")
         return State.objects.filter(user_id=user_id, user_state=user_state)
+
+
+class UserLikedCommentsListView(ListAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        liked_comments = Comment.objects.filter(likes__created_by=user)
+        return liked_comments

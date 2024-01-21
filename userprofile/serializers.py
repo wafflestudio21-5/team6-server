@@ -13,6 +13,19 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'nickname', 'bio', 'profile_photo', 'background_photo', 'followers_count', 'following_count']
 
 
+class UserSummarySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = WaffleUser
+        fields = ['id', 'username', 'nickname', 'profile_photo', 'background_photo']
+
+
+class MovieSummarySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Movie
+        fields = ['movieCD', 'title_ko', 'poster', 'release_date']
+
 
 class UserDetailSerializer(serializers.ModelSerializer):
     followers_count = serializers.IntegerField(source='followers.count', read_only=True)
@@ -20,7 +33,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WaffleUser
-        fields = ['id', 'username', 'nickname', 'bio', 'profile_photo', 'background_photo', 'followers_count', 'following_count']
+        fields = ['id', 'username', 'nickname', 'bio', 'profile_photo',
+                  'background_photo', 'followers_count', 'following_count']
 
     def update(self, instance, validated_data):
         instance.nickname = validated_data.get('nickname', instance.nickname)
@@ -39,10 +53,15 @@ class UserDeleteSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()
     reply_count = serializers.SerializerMethodField()
+    created_by = UserSummarySerializer()
+    movie = MovieSummarySerializer()
 
     class Meta:
         model = Comment
-        fields = ['id', 'movie', 'content', 'rating', 'created_at', 'updated_at', 'likes_count', 'reply_count']
+        fields = [
+            'id', 'created_by', 'movie', 'content', 'rating', 'created_at',
+            'updated_at', 'likes_count', 'reply_count'
+        ]
         depth = 1 #영화 정보 보여주기
 
     def get_likes_count(self, obj):
@@ -51,7 +70,7 @@ class CommentSerializer(serializers.ModelSerializer):
     def get_reply_count(self, obj):
         return obj.reply_set.count()
 
-# serializers.py
+
 class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
