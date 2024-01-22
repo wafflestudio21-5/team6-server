@@ -17,6 +17,7 @@ from django.http import JsonResponse, QueryDict
 import requests
 import os
 import json
+from .paginations import *
 
 
 class UserDetailView(RetrieveAPIView):
@@ -178,6 +179,36 @@ class AddFollowView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class UnfollowView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            # Get user_id from request data
+            user_id = request.data.get('user_id')
+            if user_id is None:
+                return Response({"error": "User ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+            loggedin_user = request.user  # Authenticated user from JWT token
+            user_to_unfollow = WaffleUser.objects.get(pk=user_id)
+
+            if loggedin_user == user_to_unfollow:
+                return Response({"error": "You cannot unfollow yourself."}, status=status.HTTP_400_BAD_REQUEST)
+
+            if user_to_unfollow not in loggedin_user.following.all():
+                return Response({"error": f"You do not follow {user_to_unfollow.username}."},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            loggedin_user.following.remove(user_to_unfollow)  # Remove the user from the following list
+
+            return Response({"message": f"Successfully unfollowed the user {user_to_unfollow.username}."}, status=status.HTTP_200_OK)
+
+        except WaffleUser.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 class UserFollowView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -233,6 +264,7 @@ class FollowingsListView(ListAPIView):
 
 class UserCommentsListView(ListAPIView):
     serializer_class = CommentSerializer
+    pagination_class = BasePagination
 
     def get_queryset(self):
         user_id = self.kwargs['pk']
@@ -242,36 +274,49 @@ class UserCommentsListView(ListAPIView):
             'low-rating': 'rate_count',
             'created': '-created_at'
         }
-        rate = self.request.query_params.get('rate')
         order_option = self.request.query_params.get('order')
 
-        if rate is not None:
-            queryset = Comment.objects.filter(created_by_id=user_id, rating=rate).annotate(
-                like_count=Count('likes'),
-                rate_count=F('rating__rate')
-            )
-        else:
-            queryset = Comment.objects.filter(created_by_id=user_id).annotate(
-                like_count=Count('likes'),
-                rate_count=F('rating__rate')
-            )
+        queryset = Comment.objects.filter(created_by_id=user_id).annotate(
+            like_count=Count('likes'),
+            reply_count=Count('reply'),
+            rate_count=F('rating__rate')
+        )
 
         queryset = queryset.order_by(order_options['like'])
 
         if order_option in order_options:
             if order_option in ['high-rating', 'low-rating']:
-                queryset = queryset.filter(rating__isnull=False)
+                queryset = queryset.exclude(rating__isnull=True)
             queryset = queryset.order_by(order_options[order_option])
 
         return queryset
 
+
 class UserRatingListView(ListAPIView):
     serializer_class = UserRatingSerializer
+    pagination_class = BasePagination
 
     def get_queryset(self):
         user_id = self.kwargs.get("user_id")
-        # Use `select_related` for better performance, as it will join the related Movie table
-        return Rating.objects.filter(created_by_id=user_id).select_related('movie')
+        order_options = {
+            'high-rating': '-rate',
+            'low-rating': 'rate',
+            'created': '-updated_at'
+        }
+        rate = self.request.query_params.get('rate')
+        order_option = self.request.query_params.get('order')
+        queryset = Rating.objects.filter(created_by_id=user_id)
+        if rate is not None:
+            queryset = queryset.filter(rate=rate)
+
+        if order_option in order_options:
+            queryset = queryset.order_by(order_options[order_option])
+        else:
+            queryset = queryset.order_by(order_options['created'])
+
+        queryset = queryset.select_related('movie')
+
+        return queryset
 
 
 class UserMovieStateListView(ListAPIView):
@@ -287,6 +332,7 @@ class UserLikedCommentsListView(ListAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = CommentSerializer
+    pagination_class = BasePagination
 
     def get_queryset(self):
         user = self.request.user

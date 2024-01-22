@@ -14,6 +14,7 @@ urlpatterns = [
     path('<int:user_id>/followers/', FollowersListView.as_view(), name='user-followers'),
     path('<int:user_id>/followings/', FollowingsListView.as_view(), name='user-following'),
     path('<int:user_id>/add/follow/', AddFollowView.as_view(), name='user-add-follow-by-detail-page'),
+    path('unfollow/', UnfollowView.as_view(), name='unfollow'),
     path('add/follow/', UserFollowView.as_view(), name='user-add-follow-by-userid'),
     path('<int:pk>/comments/', UserCommentsListView.as_view(), name='user-comments'),
     path('<int:user_id>/ratings/', UserRatingListView.as_view(), name='user-ratings'),
