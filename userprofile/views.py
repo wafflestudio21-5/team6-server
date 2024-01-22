@@ -178,6 +178,36 @@ class AddFollowView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class UnfollowView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            # Get user_id from request data
+            user_id = request.data.get('user_id')
+            if user_id is None:
+                return Response({"error": "User ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+            loggedin_user = request.user  # Authenticated user from JWT token
+            user_to_unfollow = WaffleUser.objects.get(pk=user_id)
+
+            if loggedin_user == user_to_unfollow:
+                return Response({"error": "You cannot unfollow yourself."}, status=status.HTTP_400_BAD_REQUEST)
+
+            if user_to_unfollow not in loggedin_user.following.all():
+                return Response({"error": f"You do not follow {user_to_unfollow.username}."},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            loggedin_user.following.remove(user_to_unfollow)  # Remove the user from the following list
+
+            return Response({"message": f"Successfully unfollowed the user {user_to_unfollow.username}."}, status=status.HTTP_200_OK)
+
+        except WaffleUser.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 class UserFollowView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
