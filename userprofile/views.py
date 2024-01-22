@@ -264,7 +264,7 @@ class FollowingsListView(ListAPIView):
 
 class UserCommentsListView(ListAPIView):
     serializer_class = CommentSerializer
-    pagination_class = RatingPagination
+    pagination_class = BasePagination
 
     def get_queryset(self):
         user_id = self.kwargs['pk']
@@ -294,7 +294,7 @@ class UserCommentsListView(ListAPIView):
 
 class UserRatingListView(ListAPIView):
     serializer_class = UserRatingSerializer
-    pagination_class = RatingPagination
+    pagination_class = BasePagination
 
     def get_queryset(self):
         user_id = self.kwargs.get("user_id")
@@ -332,6 +332,7 @@ class UserLikedCommentsListView(ListAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = CommentSerializer
+    pagination_class = BasePagination
 
     def get_queryset(self):
         user = self.request.user
