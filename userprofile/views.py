@@ -17,6 +17,7 @@ from django.http import JsonResponse, QueryDict
 import requests
 import os
 import json
+from .paginations import *
 
 
 class UserDetailView(RetrieveAPIView):
@@ -263,6 +264,7 @@ class FollowingsListView(ListAPIView):
 
 class UserCommentsListView(ListAPIView):
     serializer_class = CommentSerializer
+    pagination_class = RatingPagination
 
     def get_queryset(self):
         user_id = self.kwargs['pk']
@@ -272,19 +274,12 @@ class UserCommentsListView(ListAPIView):
             'low-rating': 'rate_count',
             'created': '-created_at'
         }
-        rate = self.request.query_params.get('rate')
         order_option = self.request.query_params.get('order')
 
-        if rate is not None:
-            queryset = Comment.objects.filter(created_by_id=user_id, rating=rate).annotate(
-                like_count=Count('likes'),
-                rate_count=F('rating__rate')
-            )
-        else:
-            queryset = Comment.objects.filter(created_by_id=user_id).annotate(
-                like_count=Count('likes'),
-                rate_count=F('rating__rate')
-            )
+        queryset = Comment.objects.filter(created_by_id=user_id).annotate(
+            like_count=Count('likes'),
+            reply_count=Count('reply_set')
+        )
 
         queryset = queryset.order_by(order_options['like'])
 
@@ -295,13 +290,32 @@ class UserCommentsListView(ListAPIView):
 
         return queryset
 
+
 class UserRatingListView(ListAPIView):
     serializer_class = UserRatingSerializer
+    pagination_class = RatingPagination
 
     def get_queryset(self):
         user_id = self.kwargs.get("user_id")
-        # Use `select_related` for better performance, as it will join the related Movie table
-        return Rating.objects.filter(created_by_id=user_id).select_related('movie')
+        order_options = {
+            'high-rating': '-rate',
+            'low-rating': 'rate',
+            'created': '-updated_at'
+        }
+        rate = self.request.query_params.get('rate')
+        order_option = self.request.query_params.get('order')
+        queryset = Rating.objects.filter(created_by_id=user_id)
+        if rate is not None:
+            queryset = queryset.filter(rate=rate)
+
+        if order_option in order_options:
+            queryset = queryset.order_by(order_options[order_option])
+        else:
+            queryset = queryset.order_by(order_options['created'])
+
+        queryset = queryset.select_related('movie')
+
+        return queryset
 
 
 class UserMovieStateListView(ListAPIView):
