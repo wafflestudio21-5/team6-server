@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.exceptions import ValidationError
 
 from .models import *
 from .serializers import *
@@ -50,11 +51,19 @@ class RatingAPI(generics.ListCreateAPIView):
         return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
-        print(self.request.user, self.kwargs['pk'])
-        serializer.save(
-            created_by=self.request.user,
-            movie=Movie.objects.get(pk=self.kwargs['pk'])
-        )
+        movie = get_object_or_404(Movie, pk=self.kwargs['pk'])
+
+        # 이미 유저가 영화에 대해 남긴 별점이 있는지 확인
+        existing_rating = Rating.objects.filter(movie=movie, created_by=self.request.user).first()
+
+        if existing_rating:
+            raise ValidationError("You have already rated this movie.")
+        else:
+            # If no rating exists, create a new one
+            serializer.save(
+                created_by=self.request.user,
+                movie=movie
+            )
 
 
 class RatingRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
