@@ -16,7 +16,9 @@ class Comment(models.Model):
     likes = GenericRelation('Like', related_query_name='comment')
 
     def __str__(self):
-        return self.created_by.nickname + ' - ' + self.movie.title_ko
+        if self.created_by.nickname:
+            return self.created_by.nickname + ' - ' + self.movie.title_ko
+        return self.created_by.username + ' - ' + self.movie.title_ko
 
 
 class Reply(models.Model):
