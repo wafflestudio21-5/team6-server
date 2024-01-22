@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import *
+from comment.models import Comment
 from .validators import decimal_choices_validator
 
 
@@ -30,6 +31,7 @@ class MovieSerializer(serializers.ModelSerializer):
     genres = ShowGenreSerializer(many=True)
     average_rate = serializers.SerializerMethodField()
     my_rate = serializers.SerializerMethodField()
+    my_comment = serializers.SerializerMethodField()
 
     class Meta:
         model = Movie
@@ -49,6 +51,17 @@ class MovieSerializer(serializers.ModelSerializer):
                 context = dict()
                 context['id'] = my_rating.id
                 context['my_rate'] = my_rating.rate
+                return context
+        return None
+
+    def get_my_comment(self, obj):
+        request = self.context.get('request')
+        if request.user.is_authenticated:
+            if Comment.objects.filter(movie=obj, created_by=request.user).exists():
+                my_comment_obj = Comment.objects.get(movie=obj, created_by=request.user)
+                context = dict()
+                context['id'] = my_comment_obj.id
+                context['my_comment'] = my_comment_obj.content
                 return context
         return None
 
@@ -90,3 +103,11 @@ class RatingSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['rate'].validators = [decimal_choices_validator]
+
+
+class CarouselSerializer(serializers.ModelSerializer):
+    movies = MovieListSerializer(many=True)
+
+    class Meta:
+        model = Carousel
+        fields = '__all__'

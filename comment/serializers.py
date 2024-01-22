@@ -21,6 +21,7 @@ class CommentSerializer(serializers.ModelSerializer):
     created_by = CommentWriterSerializer(read_only=True)
     rating = CommentRatingSerializer(read_only=True)
     like_count = serializers.SerializerMethodField()
+    liked_by_user = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
@@ -32,3 +33,11 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_like_count(self, obj):
         return obj.likes.all().count()
+
+    def get_liked_by_user(self, obj):
+        request = self.context.get('request')
+        if request.user.is_authenticated:
+            if obj.likes.filter(created_by=request.user).exists():
+                return True
+        return False
+    

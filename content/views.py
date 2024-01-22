@@ -1,3 +1,4 @@
+from django.http import QueryDict
 from rest_framework import generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -15,7 +16,6 @@ from decimal import Decimal
 
 class MovieListAPI(generics.ListAPIView):
     serializer_class = MovieListSerializer
-    pagination_class = MoviePageNumberPagination
 
     def get_queryset(self, *args, **kwargs):
         if self.request.query_params.get('order'):
@@ -23,8 +23,8 @@ class MovieListAPI(generics.ListAPIView):
                 'latest': '-release_date',
                 'box-office': '-cumulative_audience'
             }
-            return Movie.objects.order_by(order_options[self.request.query_params.get('order')])[:20]
-        return Movie.objects.order_by('-release_date')[:20]
+            return Movie.objects.order_by(order_options[self.request.query_params.get('order')])[:30]
+        return Movie.objects.order_by('-release_date')[:30]
 
 
 class MovieRetrieveAPI(generics.RetrieveAPIView):
@@ -35,17 +35,18 @@ class MovieRetrieveAPI(generics.RetrieveAPIView):
 
 class RatingAPI(generics.ListCreateAPIView):
     serializer_class = RatingSerializer
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [JWTAuthentication,]
 
     def get_queryset(self, *args, **kwargs):
         movie = get_object_or_404(Movie, pk=self.kwargs.get('pk'))
         return Rating.objects.filter(movie=movie)
 
     def create(self, request, *args, **kwargs):
-        request.data._mutable = True
-        request.data['rate'] = Decimal(request.data['rate'])
-        request.data._mutable = False
-        print(request.data)
+        if isinstance(request.data, QueryDict):
+            request.data._mutable = True
+        request.data['rate'] = Decimal(str(request.data['rate']))
+        if isinstance(request.data, QueryDict):
+            request.data._mutable = False
         return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
@@ -59,21 +60,11 @@ class RatingAPI(generics.ListCreateAPIView):
 class RatingRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RatingSerializer
     queryset = Rating.objects.all()
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsOwnerOrReadOnly,)
+    authentication_classes = [JWTAuthentication,]
+    permission_classes = [IsOwnerOrReadOnly,]
 
 
-'''
-class RatingAPI(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    def get_object(self, pk):
-        movie = generics.get_object_or_404(Movie, pk=pk)
-        return movie
+class CarouselRetrieveAPI(generics.RetrieveAPIView):
+    queryset = Carousel.objects.all()
+    serializer_class = CarouselSerializer
 
-    def get(self, request, pk):
-        movie = self.get_object(pk)
-        ratings = round(sum(map(lambda x: x.rate,Rating.objects.filter(movie=movie)))/len(Rating.objects.filter(movie=movie)),1)
-        data = {'movieCD': pk, 'rating': ratings}
-        return Response(data, status=status.HTTP_200_OK)
-'''
