@@ -68,3 +68,12 @@ class ProcessCommentLikeAPI(APIView):
 
         return Response({"message": "success"}, status=status.HTTP_200_OK,)
 
+
+class ReplyListAPI(generics.ListAPIView):
+    serializer_class = ReplySerializer
+
+    def get_queryset(self):
+        comment_id = self.kwargs['comment_id']
+        queryset = Reply.objects.filter(comment_id=comment_id).order_by('updated_at')
+
+        return queryset
