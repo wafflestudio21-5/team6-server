@@ -15,6 +15,14 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     likes = GenericRelation('Like', related_query_name='comment')
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["created_by", "movie"],
+                name="unique comment",
+            )
+        ]
+
     def __str__(self):
         if self.created_by.nickname:
             return self.created_by.nickname + ' - ' + self.movie.title_ko

@@ -35,6 +35,14 @@ class Rating(models.Model):
     created_by = models.ForeignKey(WaffleUser, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["created_by", "movie"],
+                name="unique rating",
+            )
+        ]
+
     def __str__(self):
         if self.created_by.nickname:
             return self.created_by.nickname + " - " + self.movie.title_ko
