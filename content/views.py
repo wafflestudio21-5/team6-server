@@ -16,7 +16,6 @@ from decimal import Decimal
 
 class MovieListAPI(generics.ListAPIView):
     serializer_class = MovieListSerializer
-    pagination_class = MoviePageNumberPagination
 
     def get_queryset(self, *args, **kwargs):
         if self.request.query_params.get('order'):
@@ -24,8 +23,8 @@ class MovieListAPI(generics.ListAPIView):
                 'latest': '-release_date',
                 'box-office': '-cumulative_audience'
             }
-            return Movie.objects.order_by(order_options[self.request.query_params.get('order')])[:20]
-        return Movie.objects.order_by('-release_date')[:20]
+            return Movie.objects.order_by(order_options[self.request.query_params.get('order')])[:30]
+        return Movie.objects.order_by('-release_date')[:30]
 
 
 class MovieRetrieveAPI(generics.RetrieveAPIView):
