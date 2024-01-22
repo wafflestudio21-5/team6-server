@@ -17,6 +17,7 @@ from .permissions import IsOwnerOrReadOnly
 class CommentListCreateAPI(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
     pagination_class = CommentCursorPagination
+    authentication_classes = [JWTAuthentication,]
 
     def get_queryset(self, *args, **kwargs):
         movie = get_object_or_404(Movie, pk=self.kwargs.get('pk'))
