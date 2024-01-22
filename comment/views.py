@@ -51,8 +51,8 @@ class CommentListCreateAPI(generics.ListCreateAPIView):
 class CommentRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsOwnerOrReadOnly,)
+    authentication_classes = [JWTAuthentication,]
+    permission_classes = [IsOwnerOrReadOnly,]
 
 
 class ProcessCommentLikeAPI(APIView):
