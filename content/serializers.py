@@ -62,6 +62,7 @@ class MovieSerializer(serializers.ModelSerializer):
                 context = dict()
                 context['id'] = my_comment_obj.id
                 context['my_comment'] = my_comment_obj.content
+                context['has_spoiler'] = my_comment_obj.has_spoiler
                 return context
         return None
 
