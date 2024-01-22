@@ -35,7 +35,7 @@ class MovieRetrieveAPI(generics.RetrieveAPIView):
 
 class RatingAPI(generics.ListCreateAPIView):
     serializer_class = RatingSerializer
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [JWTAuthentication,]
 
     def get_queryset(self, *args, **kwargs):
         movie = get_object_or_404(Movie, pk=self.kwargs.get('pk'))
@@ -59,24 +59,8 @@ class RatingAPI(generics.ListCreateAPIView):
 class RatingRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RatingSerializer
     queryset = Rating.objects.all()
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsOwnerOrReadOnly,)
-
-
-'''
-class RatingAPI(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    def get_object(self, pk):
-        movie = generics.get_object_or_404(Movie, pk=pk)
-        return movie
-
-    def get(self, request, pk):
-        movie = self.get_object(pk)
-        ratings = round(sum(map(lambda x: x.rate,Rating.objects.filter(movie=movie)))/len(Rating.objects.filter(movie=movie)),1)
-        data = {'movieCD': pk, 'rating': ratings}
-        return Response(data, status=status.HTTP_200_OK)
-'''
+    authentication_classes = [JWTAuthentication,]
+    permission_classes = [IsOwnerOrReadOnly,]
 
 
 class CarouselRetrieveAPI(generics.RetrieveAPIView):
