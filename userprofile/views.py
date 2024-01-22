@@ -278,14 +278,15 @@ class UserCommentsListView(ListAPIView):
 
         queryset = Comment.objects.filter(created_by_id=user_id).annotate(
             like_count=Count('likes'),
-            reply_count=Count('reply_set')
+            reply_count=Count('reply'),
+            rate_count=F('rating__rate')
         )
 
         queryset = queryset.order_by(order_options['like'])
 
         if order_option in order_options:
             if order_option in ['high-rating', 'low-rating']:
-                queryset = queryset.filter(rating__isnull=False)
+                queryset = queryset.exclude(rating__isnull=True)
             queryset = queryset.order_by(order_options[order_option])
 
         return queryset
