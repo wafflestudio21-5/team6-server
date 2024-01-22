@@ -1,3 +1,4 @@
+from django.http import QueryDict
 from rest_framework import generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -42,10 +43,11 @@ class RatingAPI(generics.ListCreateAPIView):
         return Rating.objects.filter(movie=movie)
 
     def create(self, request, *args, **kwargs):
-        request.data._mutable = True
+        if isinstance(request.data, QueryDict):
+            request.data._mutable = True
         request.data['rate'] = Decimal(request.data['rate'])
-        request.data._mutable = False
-        print(request.data)
+        if isinstance(request.data, QueryDict):
+            request.data._mutable = False
         return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
