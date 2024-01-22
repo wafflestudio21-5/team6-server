@@ -20,7 +20,7 @@ class MovieTitleListSerializer(serializers.ModelSerializer):
 
 
 class MovieListSerializer(serializers.ModelSerializer):
-    directors = serializers.SerializerMethodField()
+    directors = DirectorSerializer(many=True)
 
     class Meta:
         model = Movie
@@ -29,11 +29,6 @@ class MovieListSerializer(serializers.ModelSerializer):
             'prod_country', 'poster', 'release_date',
             'directors',
         ]
-
-    def get_directors(self, obj):
-        # Filtering to get only directors of the movie
-        directors = obj.directors.all()
-        return DirectorSerializer(directors, many=True).data
 
 
 class UserListSerializer(serializers.ModelSerializer):
