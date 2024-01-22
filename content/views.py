@@ -44,7 +44,7 @@ class RatingAPI(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         if isinstance(request.data, QueryDict):
             request.data._mutable = True
-        request.data['rate'] = Decimal(request.data['rate'])
+        request.data['rate'] = Decimal(str(request.data['rate']))
         if isinstance(request.data, QueryDict):
             request.data._mutable = False
         return super().create(request, *args, **kwargs)
