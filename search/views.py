@@ -7,9 +7,6 @@ from .serializers import *
 
 from rest_framework.generics import ListAPIView
 
-
-# query로 받도록
-
 class SearchListAPIView(ListAPIView):
 
     def get_serializer_class(self):
