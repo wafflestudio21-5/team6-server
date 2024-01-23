@@ -69,11 +69,41 @@ class ProcessCommentLikeAPI(APIView):
         return Response({"message": "success"}, status=status.HTTP_200_OK,)
 
 
-class ReplyListAPI(generics.ListAPIView):
+class ReplyListCreateAPI(generics.ListCreateAPIView):
     serializer_class = ReplySerializer
+    authentication_classes = [JWTAuthentication, ]
+    permission_classes = [IsOwnerOrReadOnly, ]
 
     def get_queryset(self):
         comment_id = self.kwargs['comment_id']
         queryset = Reply.objects.filter(comment_id=comment_id).order_by('updated_at')
 
         return queryset
+
+    def perform_create(self, serializer):
+        comment = get_object_or_404(Comment, pk=self.kwargs.get('comment_id'))
+        serializer.save(
+            created_by=self.request.user,
+            comment=comment
+        )
+
+
+class ReplyRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Reply.objects.all()
+    serializer_class = ReplySerializer
+    authentication_classes = [JWTAuthentication,]
+    permission_classes = [IsOwnerOrReadOnly,]
+    lookup_url_kwarg = 'reply_id'
+
+
+class ProcessReplyLikeAPI(APIView):
+    def post(self, request, *args, **kwargs):
+        like, created = Like.objects.get_or_create(
+            created_by=self.request.user,
+            object_id=self.kwargs.get('object_id'),
+            content_type_id=ContentType.objects.get(model='reply').id,
+        )
+        if not created:
+            like.delete()
+
+        return Response({"message": "success"}, status=status.HTTP_200_OK,)
