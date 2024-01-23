@@ -28,7 +28,11 @@ class ShowGenreSerializer(serializers.ModelSerializer):
 class StateSerializer(serializers.ModelSerializer):
     class Meta:
         model = State
-        fields = ['id', 'user_state']
+        fields = '__all__'
+        extra_kwargs = {
+            'user': {'required': False, 'allow_null': True},
+            'movie': {'required': False, 'allow_null': True},
+        }
 
 
 class MovieSerializer(serializers.ModelSerializer):
@@ -49,11 +53,14 @@ class MovieSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request.user.is_authenticated:
             if State.objects.filter(movie=obj, user=request.user).exists():
-                my_state_obj = State.objects.get(movie=obj, user=request.user)
-                serializer = StateSerializer(my_state_obj, context={'request':request})
-                return serializer.data
+                my_state = State.objects.get(movie=obj, user=request.user)
+                context = dict()
+                context['id'] = my_state.id
+                context['my_rate'] = my_state.user_state
+                return context
+            else:
+                print('no state found!')
         return None
-
 
     def get_average_rate(self, obj):
         if Rating.objects.filter(movie=obj).exists():
