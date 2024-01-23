@@ -25,11 +25,22 @@ class ShowGenreSerializer(serializers.ModelSerializer):
         fields = ['genre']
 
 
+class StateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = State
+        fields = '__all__'
+        extra_kwargs = {
+            'user': {'required': False, 'allow_null': True},
+            'movie': {'required': False, 'allow_null': True},
+        }
+
+
 class MovieSerializer(serializers.ModelSerializer):
     directors = PeopleInfoSerializer(many=True)
     writers = PeopleInfoSerializer(many=True)
     castings = RoleSerializer(many=True)
     genres = ShowGenreSerializer(many=True)
+    my_state = serializers.SerializerMethodField()
     average_rate = serializers.SerializerMethodField()
     my_rate = serializers.SerializerMethodField()
     my_comment = serializers.SerializerMethodField()
@@ -37,6 +48,19 @@ class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
         fields = '__all__'
+
+    def get_my_state(self, obj):
+        request = self.context.get('request')
+        if request.user.is_authenticated:
+            if State.objects.filter(movie=obj, user=request.user).exists():
+                my_state = State.objects.get(movie=obj, user=request.user)
+                context = dict()
+                context['id'] = my_state.id
+                context['my_state'] = my_state.user_state
+                return context
+            else:
+                print('no state found!')
+        return None
 
     def get_average_rate(self, obj):
         if Rating.objects.filter(movie=obj).exists():
