@@ -89,6 +89,7 @@ INSTALLED_APPS = [
     "content",
     "contentTest",
     "userprofile",
+    "search",
 ]
 
 MIDDLEWARE = [
