@@ -249,4 +249,7 @@ CORS_ALLOW_HEADERS = [
 CORS_ALLOW_ORIGIN = "https://d1vexdz72u651e.cloudfront.net"
 
 #CIDR
-ALLOWED_CIDR_NETS = ['172.31.0.0/16']
+ALLOWED_CIDR_NETS = [
+    '172.31.0.0/16',
+    '43.202.0.0/16'
+]
