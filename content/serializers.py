@@ -56,7 +56,7 @@ class MovieSerializer(serializers.ModelSerializer):
                 my_state = State.objects.get(movie=obj, user=request.user)
                 context = dict()
                 context['id'] = my_state.id
-                context['my_rate'] = my_state.user_state
+                context['my_state'] = my_state.user_state
                 return context
             else:
                 print('no state found!')

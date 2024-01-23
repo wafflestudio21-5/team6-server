@@ -11,6 +11,7 @@ from .models import *
 from .serializers import *
 from .paginations import *
 from comment.permissions import IsOwnerOrReadOnly
+from .permissions import IsOwner
 
 from decimal import Decimal
 
@@ -97,3 +98,10 @@ class StateCreateAPI(generics.CreateAPIView):
             user=self.request.user,
             movie=movie
         )
+
+
+class StateUpdateAPI(generics.UpdateAPIView):
+    serializer_class = StateSerializer
+    queryset = State.objects.all()
+    authentication_classes = [JWTAuthentication, ]
+    permission_classes = [IsOwner, ]
