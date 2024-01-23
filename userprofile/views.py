@@ -278,7 +278,7 @@ class UserCommentsListView(ListAPIView):
 
         queryset = Comment.objects.filter(created_by_id=user_id).annotate(
             like_count=Count('likes'),
-            reply_count=Count('reply'),
+            reply_count=Count('replies'),
             rate_count=F('rating__rate')
         )
 
