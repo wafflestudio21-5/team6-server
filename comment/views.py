@@ -4,6 +4,7 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
 from django.db.models import Count, F
 from django.contrib.contenttypes.models import ContentType
@@ -43,10 +44,17 @@ class CommentListCreateAPI(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         movie = get_object_or_404(Movie, pk=self.kwargs.get('pk'))
-        serializer.save(
-            created_by=self.request.user,
-            movie=movie
-        )
+
+        # 이미 유저가 영화에 대해 작성한 코멘트가 있는지 확인
+        existing_comment = Comment.objects.filter(movie=movie, created_by=self.request.user).first()
+
+        if existing_comment:
+            raise ValidationError("You have already commented on this movie.")
+        else:
+            serializer.save(
+                created_by=self.request.user,
+                movie=movie
+            )
 
 
 class CommentRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):

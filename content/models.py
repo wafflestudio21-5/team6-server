@@ -35,8 +35,18 @@ class Rating(models.Model):
     created_by = models.ForeignKey(WaffleUser, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["created_by", "movie"],
+                name="unique rating",
+            )
+        ]
+
     def __str__(self):
-        return self.created_by.nickname + " - " + self.movie.title_ko
+        if self.created_by.nickname:
+            return self.created_by.nickname + " - " + self.movie.title_ko
+        return self.created_by.username + " - " + self.movie.title_ko
 
 
 class People(models.Model):
@@ -84,7 +94,9 @@ class State(models.Model):
     user_state = models.CharField(choices=STATE_CHOICES, max_length=20, blank=True)
 
     def __str__(self):
-        return self.movie.title_ko + " - " + self.user.nickname
+        if self.user.nickname:
+            return self.movie.title_ko + " - " + self.user.nickname
+        return self.movie.title_ko + " - " + self.user.username
 
 
 class Carousel(models.Model):

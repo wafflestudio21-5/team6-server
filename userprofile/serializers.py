@@ -10,7 +10,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WaffleUser
-        fields = ['id', 'username', 'nickname', 'bio', 'profile_photo', 'background_photo', 'followers_count', 'following_count']
+        fields = ['id', 'username', 'nickname', 'bio', 'profile_photo',
+                  'background_photo', 'followers_count', 'following_count']
 
 
 class UserSummarySerializer(serializers.ModelSerializer):
@@ -30,11 +31,15 @@ class MovieSummarySerializer(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     followers_count = serializers.IntegerField(source='followers.count', read_only=True)
     following_count = serializers.IntegerField(source='following.count', read_only=True)
+    comment_num = serializers.SerializerMethodField(read_only=True)
+    rate_num = serializers.SerializerMethodField(read_only=True)
+    liked_comment_num = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = WaffleUser
         fields = ['id', 'username', 'nickname', 'bio', 'profile_photo',
-                  'background_photo', 'followers_count', 'following_count']
+                  'background_photo', 'followers_count', 'following_count',
+                  'comment_num', 'rate_num', 'liked_comment_num']
 
     def update(self, instance, validated_data):
         instance.nickname = validated_data.get('nickname', instance.nickname)
@@ -43,6 +48,16 @@ class UserDetailSerializer(serializers.ModelSerializer):
         #instance.background_photo = validated_data.get('background_photo', instance.background_photo)
         instance.save()
         return instance
+
+    def get_rate_num(self, obj):
+        return Rating.objects.filter(created_by=obj).count()
+
+    def get_comment_num(self, obj):
+        return Comment.objects.filter(created_by=obj).count()
+
+    def get_liked_comment_num(self, obj):
+        return Comment.objects.filter(likes__created_by=obj).count()
+
 
 class UserDeleteSerializer(serializers.ModelSerializer):
     class Meta:

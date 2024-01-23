@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from comment.models import Comment
+from comment.serializers import CommentSerializer
 from .validators import decimal_choices_validator
 
 
@@ -59,10 +60,8 @@ class MovieSerializer(serializers.ModelSerializer):
         if request.user.is_authenticated:
             if Comment.objects.filter(movie=obj, created_by=request.user).exists():
                 my_comment_obj = Comment.objects.get(movie=obj, created_by=request.user)
-                context = dict()
-                context['id'] = my_comment_obj.id
-                context['my_comment'] = my_comment_obj.content
-                return context
+                serializer = CommentSerializer(my_comment_obj, context={'request': request})
+                return serializer.data
         return None
 
 
