@@ -25,7 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_liked_comment_num(self, obj):
         return Comment.objects.filter(likes__created_by=obj).count()
-
+      
 
 class UserSummarySerializer(serializers.ModelSerializer):
 
