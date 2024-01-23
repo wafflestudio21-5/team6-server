@@ -48,7 +48,7 @@ class MovieSerializer(serializers.ModelSerializer):
     def get_my_state(self, obj):
         request = self.context.get('request')
         if request.user.is_authenticated:
-            if State.filter(movie=obj, user=request.user).exists():
+            if State.objects.filter(movie=obj, user=request.user).exists():
                 my_state_obj = State.objects.get(movie=obj, user=request.user)
                 serializer = StateSerializer(my_state_obj, context={'request':request})
                 return serializer.data
