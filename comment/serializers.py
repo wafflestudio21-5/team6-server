@@ -22,6 +22,7 @@ class CommentSerializer(serializers.ModelSerializer):
     rating = CommentRatingSerializer(read_only=True)
     like_count = serializers.SerializerMethodField()
     liked_by_user = serializers.SerializerMethodField()
+    reply_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
@@ -34,13 +35,15 @@ class CommentSerializer(serializers.ModelSerializer):
     def get_like_count(self, obj):
         return obj.likes.all().count()
 
-
     def get_liked_by_user(self, obj):
         request = self.context.get('request')
         if request.user.is_authenticated:
             if obj.likes.filter(created_by=request.user).exists():
                 return True
         return False
+
+    def get_reply_count(self,obj):
+        return obj.replies.all().count()
 
 
 class ReplyWriterSerializer(serializers.ModelSerializer):
