@@ -5,7 +5,7 @@ from content.models import Rating
 from waffleAuth.models import WaffleUser
 
 
-class CommentWriterSerializer(serializers.ModelSerializer):
+class WriterSerializer(serializers.ModelSerializer):
     class Meta:
         model = WaffleUser
         fields = ['id', 'nickname', 'profile_photo']
@@ -18,7 +18,7 @@ class CommentRatingSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    created_by = CommentWriterSerializer(read_only=True)
+    created_by = WriterSerializer(read_only=True)
     rating = CommentRatingSerializer(read_only=True)
     like_count = serializers.SerializerMethodField()
     liked_by_user = serializers.SerializerMethodField()
@@ -46,12 +46,6 @@ class CommentSerializer(serializers.ModelSerializer):
         return obj.replies.all().count()
 
 
-class ReplyWriterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = WaffleUser
-        fields = ['id', 'nickname', 'profile_photo']
-
-
 class ReplyCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
@@ -59,7 +53,7 @@ class ReplyCommentSerializer(serializers.ModelSerializer):
 
 
 class ReplySerializer(serializers.ModelSerializer):
-    created_by = ReplyWriterSerializer(read_only=True)
+    created_by = WriterSerializer(read_only=True)
     like_count = serializers.SerializerMethodField()
     comment = ReplyCommentSerializer(read_only=True)
 
