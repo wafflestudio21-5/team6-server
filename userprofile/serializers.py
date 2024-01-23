@@ -96,7 +96,7 @@ class CommentSerializer(serializers.ModelSerializer):
         return obj.likes.count()
 
     def get_reply_count(self, obj):
-        return obj.reply_set.count()
+        return obj.replies.count()
 
 
 class MovieSerializer(serializers.ModelSerializer):
