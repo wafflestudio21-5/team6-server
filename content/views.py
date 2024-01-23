@@ -77,3 +77,23 @@ class CarouselRetrieveAPI(generics.RetrieveAPIView):
     queryset = Carousel.objects.all()
     serializer_class = CarouselSerializer
 
+
+class StateCreateAPI(generics.CreateAPIView):
+    serializer_class = StateSerializer
+    queryset = State.objects.all()
+    authentication_classes = [JWTAuthentication,]
+    permission_classes = [IsAuthenticated,]
+
+    def perform_create(self, serializer):
+        movie = get_object_or_404(Movie, pk=self.kwargs['pk'])
+
+        # 이미 유저가 영화에 대해 상태를 설정한 적이 있는지 확인
+        existing_rating = State.objects.filter(movie=movie, user=self.request.user).first()
+
+        if existing_rating:
+            raise ValidationError("You have already set state for this movie.")
+
+        serializer.save(
+            user=self.request.user,
+            movie=movie
+        )
