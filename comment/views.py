@@ -82,7 +82,7 @@ class ReplyListCreateAPI(generics.ListCreateAPIView):
     serializer_class = ReplySerializer
     authentication_classes = [JWTAuthentication, ]
     permission_classes = [IsOwnerOrReadOnly, ]
-    pagination_class = CursorPagination
+    pagination_class = ReplyCursorPagination
 
     def get_queryset(self):
         comment_id = self.kwargs['comment_id']
