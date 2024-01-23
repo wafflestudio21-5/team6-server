@@ -7,11 +7,24 @@ from comment.models import Comment, Like
 class UserSerializer(serializers.ModelSerializer):
     followers_count = serializers.IntegerField(source='followers.count', read_only=True)
     following_count = serializers.IntegerField(source='following.count', read_only=True)
+    comment_num = serializers.SerializerMethodField(read_only=True)
+    rate_num = serializers.SerializerMethodField(read_only=True)
+    liked_comment_num = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = WaffleUser
         fields = ['id', 'username', 'nickname', 'bio', 'profile_photo',
-                  'background_photo', 'followers_count', 'following_count']
+                  'background_photo', 'followers_count', 'following_count',
+                  'comment_num', 'rate_num', 'liked_comment_num']
+
+    def get_rate_num(self, obj):
+        return Rating.objects.filter(created_by=obj).count()
+
+    def get_comment_num(self, obj):
+        return Comment.objects.filter(created_by=obj).count()
+
+    def get_liked_comment_num(self, obj):
+        return Comment.objects.filter(likes__created_by=obj).count()
 
 
 class UserSummarySerializer(serializers.ModelSerializer):
