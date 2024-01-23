@@ -4,6 +4,7 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
+from rest_framework.pagination import CursorPagination
 
 from django.db.models import Count, F
 from django.contrib.contenttypes.models import ContentType
@@ -73,6 +74,7 @@ class ReplyListCreateAPI(generics.ListCreateAPIView):
     serializer_class = ReplySerializer
     authentication_classes = [JWTAuthentication, ]
     permission_classes = [IsOwnerOrReadOnly, ]
+    pagination_class = CursorPagination
 
     def get_queryset(self):
         comment_id = self.kwargs['comment_id']

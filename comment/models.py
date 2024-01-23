@@ -31,7 +31,7 @@ class Comment(models.Model):
 
 class Reply(models.Model):
     created_by = models.ForeignKey(WaffleUser, on_delete=models.CASCADE)
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='replies')
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
