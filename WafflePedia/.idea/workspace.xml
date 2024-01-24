@@ -35,13 +35,19 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feat/user__profile__retry&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feat/unfollow&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/kangwoojin/coding/GitHub/Waffle_toyproject/team6-server/userprofile&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../userprofile" />
+    </key>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -51,7 +57,9 @@
       <option name="presentableId" value="Default" />
       <updated>1705216212218</updated>
       <workItem from="1705216213753" duration="6790000" />
-      <workItem from="1705560512836" duration="2240000" />
+      <workItem from="1705560512836" duration="9042000" />
+      <workItem from="1705993264894" duration="3108000" />
+      <workItem from="1706023302218" duration="14000" />
     </task>
     <servers />
   </component>

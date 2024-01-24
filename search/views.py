@@ -9,8 +9,6 @@ from .paginations import *
 from rest_framework.generics import ListAPIView
 
 
-# query로 받도록
-
 class SearchListAPIView(ListAPIView):
     pagination_class = SearchPagination
 
@@ -37,7 +35,7 @@ class SearchListAPIView(ListAPIView):
                 queryset = Movie.objects.none()
 
         return queryset
-
+      
 
 class KeywordSearchListAPIView(ListAPIView):
     serializer_class = MovieTitleListSerializer
