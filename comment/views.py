@@ -57,6 +57,13 @@ class CommentListCreateAPI(generics.ListCreateAPIView):
                 movie=movie
             )
 
+            # connect Comment to Rating if exists
+            if Rating.objects.filter(movie=movie, created_by=self.request.user).exists():
+                current_rating = Rating.objects.get(movie=movie, created_by=self.request.user)
+                user_comment = Comment.objects.get(movie=movie, created_by=self.request.user)
+                user_comment.rating = current_rating
+                user_comment.save()
+
 
 class CommentRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
@@ -66,6 +73,9 @@ class CommentRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ProcessCommentLikeAPI(APIView):
+    authentication_classes = [JWTAuthentication,]
+    permission_classes = [IsOwnerOrReadOnly,]
+
     def post(self, request, *args, **kwargs):
         like, created = Like.objects.get_or_create(
             created_by=self.request.user,
@@ -107,6 +117,9 @@ class ReplyRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ProcessReplyLikeAPI(APIView):
+    authentication_classes = [JWTAuthentication,]
+    permission_classes = [IsOwnerOrReadOnly,]
+
     def post(self, request, *args, **kwargs):
         like, created = Like.objects.get_or_create(
             created_by=self.request.user,
