@@ -11,10 +11,10 @@ from rest_framework.request import HttpRequest
 from rest_framework.test import APIRequestFactory
 
 from .tools import *
-from .serializers import MovieListSerializer, MovieDetailSerializer, MovieImportSerializer
-from content.models import Movie, People, Role, Genre
+from .serializers import MovieListSerializer, MovieDetailSerializer, MovieImportSerializer, BoxOfficeSerializer, BoxOfficeMovieSerializer
+from content.models import Movie, People, Role, Genre, BoxOffice, BoxOfficeMovie
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 KOBIS_API_KEY = settings.KOBIS_API_KEY
 KMDB_API_KEY = settings.KMDB_API_KEY
@@ -207,16 +207,32 @@ class ImportBoxOffice(generics.ListCreateAPIView):
         response_json = kobis_box_office()
         boxoffice_ranking = response_json["boxOfficeResult"]["dailyBoxOfficeList"]
         data = []
-
+        boxoffice_movies = []
+        today = datetime.today()
+        today -= timedelta(20)
+        box_office_instance, created = BoxOffice.objects.get_or_create(date=today)
         for entry in boxoffice_ranking:
             movieCD = entry["movieCd"]
             if not Movie.objects.filter(movieCD=movieCD).exists():
                 return redirect('import-movie', pk=movieCD)
             else:
                 movie = Movie.objects.filter(movieCD=movieCD).get()
-            if movie:
-                serializer = self.serializer_class(movie)
-                data.append(serializer.data)
+                #boxoffice_movies.append
+
+            #if movie:
+            #    serializer = self.serializer_class(movie)
+            #    data.append(serializer.data)
+            movie_rank = entry["rank"]
+            print("\nmovie:", movie)
+            bom, created = BoxOfficeMovie.objects.update_or_create(
+                box_office=box_office_instance,
+                movie=movie,
+                defaults={
+                    'rank': movie_rank,
+                }
+            )
+            serializer = BoxOfficeMovieSerializer(bom)
+            data.append(serializer.data)
 
         return Response(data)
 
@@ -269,18 +285,21 @@ def kobis_movies_detail(request, pk):
             return Response(movie_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+
 #@api_view(['GET'])
 def kobis_box_office():
     #get date
     today = datetime.today()
+    today -= timedelta(20)
     formatted_date = today.strftime("%Y%m%d")
     # boxoffice list 불러오기
     boxoffice_url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json'
     boxoffice_params = {
         'key': KOBIS_API_KEY,
-        #'targetDt': formatted_date,
-        #'targetDt': 20240123
-        'targetDt': 20130101
+        'targetDt': formatted_date,
+        #'targetDt': 20240124
+        #'targetDt': 20191101
     }
     response = requests.get(boxoffice_url, params=boxoffice_params)
 
