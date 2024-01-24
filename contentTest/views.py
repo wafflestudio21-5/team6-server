@@ -1,10 +1,14 @@
-from django.shortcuts import get_object_or_404, get_list_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404, redirect
 from django.conf import settings
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.views import APIView
-import requests, json
+import requests, json, datetime
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from rest_framework.request import HttpRequest
+from rest_framework.test import APIRequestFactory
 
 from .tools import *
 from .serializers import MovieListSerializer, MovieDetailSerializer, MovieImportSerializer
@@ -71,12 +75,17 @@ class KMBDRawData(APIView):
         return Response(kmdb_data)
 
 
-class ImportMovie(generics.CreateAPIView):
+class ImportMovie(generics.ListCreateAPIView):
     serializer_class = MovieImportSerializer
     queryset = Movie.objects.all()
 
+    def get(self, request, *args, **kwargs):
+        print("here!")
+        return self.post(self.request)
+
     def create(self, request, *args, **kwargs):
-        #get information from Kobis - title, runtime, prod_country, release_date
+        #response = self.create_movie(moviePK, request, *args, **kwargs)
+        # get information from Kobis - title, runtime, prod_country, release_date
         moviePK = self.kwargs.get('pk')
         kobis_url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json'
         kobis_params = {
@@ -88,7 +97,7 @@ class ImportMovie(generics.CreateAPIView):
 
         data = dict()
 
-        data['movieCD'] = self.kwargs.get('pk')
+        data['movieCD'] = moviePK
         data['title_ko'] = movie_data['movieNm']
         if movie_data['movieNmOg']:
             data['title_original'] = movie_data['movieNmOg']
@@ -101,32 +110,34 @@ class ImportMovie(generics.CreateAPIView):
         data['prod_country'] = movie_data['nations'][0]['nationNm']
         data['release_date'] = datetime.strptime(movie_data['openDt'], '%Y%m%d').date()
 
-        #get information from KMDB - plot, poster
+        # get information from KMDB - plot, poster
         kmdb_url = 'http://api.koreafilm.or.kr/openapi-data2/wisenut/search_api/search_json2.jsp?collection=kmdb_new2'
         kmdb_params = {
             'ServiceKey': KMDB_API_KEY,
             'listCount': "1",
             'title': data['title_ko'],
-            'director': movie_data['directors'][0]['peopleNm']
+            #'director': movie_data['directors'][0]['peopleNm']
+            'releaseDts': movie_data['openDt'],
         }
         kmdb_response = requests.get(kmdb_url, params=kmdb_params)
+        print(kmdb_response.json())
         kmdb_data = kmdb_response.json()['Data'][0]['Result'][0]
         data['plot'] = kmdb_data['plots']['plot'][0]['plotText']
         data['poster'] = kmdb_data['posters'].split('|')[0]
 
-        #create model
+        # create model
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         created_movie = Movie.objects.get(pk=data['movieCD'])
 
-        #set genres
+        # set genres
         genres = movie_data['genres']
         for genre_datum in genres:
             genre, _ = Genre.objects.get_or_create(genre=genre_datum['genreNm'])
             created_movie.genres.add(genre)
 
-        #set directors
+        # set directors
         directors_data = kmdb_data['directors']['director']
         directors_name = set()
         staffs_data = kmdb_data['staffs']['staff']
@@ -144,7 +155,7 @@ class ImportMovie(generics.CreateAPIView):
             director.save()
             created_movie.directors.add(director)
 
-        #set starring
+        # set starring
         actors_data = kmdb_data['actors']['actor']
         priority = 0
         for actor_data in actors_data:
@@ -166,7 +177,7 @@ class ImportMovie(generics.CreateAPIView):
                         )
                 priority += 1
 
-        #set starring
+        # set starring
         for staff_datum in staffs_data:
             if staff_datum['staffRoleGroup'] == '각본' and staff_datum['staffNm'] not in directors_name:
                 if People.objects.filter(is_writer=True, name=staff_datum['staffNm']).exists():
@@ -180,7 +191,30 @@ class ImportMovie(generics.CreateAPIView):
                     )
                     created_movie.writers.add(writer)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return redirect('import-boxoffice')
+        #return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class ImportBoxOffice(generics.ListCreateAPIView):
+    serializer_class = MovieImportSerializer
+    queryset = Movie.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        response_json = kobis_box_office()
+        boxoffice_ranking = response_json["boxOfficeResult"]["dailyBoxOfficeList"]
+        data = []
+
+        for entry in boxoffice_ranking:
+            movieCD = entry["movieCd"]
+            if not Movie.objects.filter(movieCD=movieCD).exists():
+                return redirect('import-movie', pk=movieCD)
+
+            else: movie = Movie.objects.filter(movieCD=movieCD).get()
+            if movie:
+                serializer = self.serializer_class(movie)
+                data.append(serializer.data)
+
+        return Response(data)
 
 
 @api_view(['GET', 'POST'])
@@ -231,17 +265,22 @@ def kobis_movies_detail(request, pk):
             return Response(movie_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
-def kobis_box_office(request):
+#@api_view(['GET'])
+def kobis_box_office():
+    #get date
+    today = datetime.today()
+    formatted_date = today.strftime("%Y%m%d")
     # boxoffice list 불러오기
     boxoffice_url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json'
     boxoffice_params = {
         'key': KOBIS_API_KEY,
-        'targetDt': '20240115',  # 추후 현재 Date로 바꿔야 할 것 -> 어차피 DB 주입한다면 그냥 상수로 해도 될 것 같다
+        'targetDt': formatted_date,
+        #'targetDt': 20240122
     }
     response = requests.get(boxoffice_url, params=boxoffice_params)
-    movies_data = response.json()
-    return Response(movies_data)
+    return response.json()
+    # movies_data = response.json()
+    # return Response(movies_data)
 '''
     for movie in movies_data:
         movie_title = movie['movieNm']
