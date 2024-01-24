@@ -74,7 +74,6 @@ class CommentRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
 
 class ProcessCommentLikeAPI(APIView):
     authentication_classes = [JWTAuthentication,]
-    permission_classes = [IsOwnerOrReadOnly,]
 
     def post(self, request, *args, **kwargs):
         like, created = Like.objects.get_or_create(
@@ -91,7 +90,6 @@ class ProcessCommentLikeAPI(APIView):
 class ReplyListCreateAPI(generics.ListCreateAPIView):
     serializer_class = ReplySerializer
     authentication_classes = [JWTAuthentication, ]
-    permission_classes = [IsOwnerOrReadOnly, ]
     pagination_class = ReplyCursorPagination
 
     def get_queryset(self):
@@ -118,7 +116,6 @@ class ReplyRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
 
 class ProcessReplyLikeAPI(APIView):
     authentication_classes = [JWTAuthentication,]
-    permission_classes = [IsOwnerOrReadOnly,]
 
     def post(self, request, *args, **kwargs):
         like, created = Like.objects.get_or_create(
