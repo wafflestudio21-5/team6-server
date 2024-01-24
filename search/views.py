@@ -10,7 +10,16 @@ from rest_framework.generics import ListAPIView
 
 
 class SearchListAPIView(ListAPIView):
-    pagination_class = SearchPagination
+    #pagination_class = SearchPagination
+
+    def get_pagination_class(self):
+        category = self.request.query_params.get('category', 'movie')
+        if category == 'users':
+            return UserSearchPagination
+        else:
+            return MovieSearchPagination
+
+    pagination_class = property(get_pagination_class)
 
     def get_serializer_class(self):
         category = self.request.query_params.get('category', 'movie')
@@ -35,7 +44,7 @@ class SearchListAPIView(ListAPIView):
                 queryset = Movie.objects.none()
 
         return queryset
-      
+
 
 class KeywordSearchListAPIView(ListAPIView):
     serializer_class = MovieTitleListSerializer
