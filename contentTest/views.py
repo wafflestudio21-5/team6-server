@@ -80,7 +80,6 @@ class ImportMovie(generics.ListCreateAPIView):
     queryset = Movie.objects.all()
 
     def get(self, request, *args, **kwargs):
-        print("here!")
         return self.post(self.request)
 
     def create(self, request, *args, **kwargs):
@@ -106,7 +105,10 @@ class ImportMovie(generics.ListCreateAPIView):
                 data['title_original'] = movie_data['movieNmEn']
             else:
                 data['title_original'] = movie_data['movieNm']
-        data['runtime'] = int(movie_data['showTm'])
+        if not movie_data['showTm']=="":
+            data['runtime'] = int(movie_data['showTm'])
+        else:
+            data['runtime'] = 0
         data['prod_country'] = movie_data['nations'][0]['nationNm']
         data['release_date'] = datetime.strptime(movie_data['openDt'], '%Y%m%d').date()
 
@@ -162,8 +164,9 @@ class ImportMovie(generics.ListCreateAPIView):
             if actor_data['actorId']:
                 actor, _ = People.objects.get_or_create(
                     pk='a' + actor_data['actorId'],
-                    name=actor_data['actorNm']
+                    #name=actor_data['actorNm']
                 )
+                actor.name = actor_data['actorNm']
                 actor.is_actor = True
                 actor.save()
                 created_movie.casts.add(actor)
@@ -191,6 +194,7 @@ class ImportMovie(generics.ListCreateAPIView):
                     )
                     created_movie.writers.add(writer)
         headers = self.get_success_headers(serializer.data)
+        Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return redirect('import-boxoffice')
         #return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -208,8 +212,8 @@ class ImportBoxOffice(generics.ListCreateAPIView):
             movieCD = entry["movieCd"]
             if not Movie.objects.filter(movieCD=movieCD).exists():
                 return redirect('import-movie', pk=movieCD)
-
-            else: movie = Movie.objects.filter(movieCD=movieCD).get()
+            else:
+                movie = Movie.objects.filter(movieCD=movieCD).get()
             if movie:
                 serializer = self.serializer_class(movie)
                 data.append(serializer.data)
@@ -274,10 +278,13 @@ def kobis_box_office():
     boxoffice_url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json'
     boxoffice_params = {
         'key': KOBIS_API_KEY,
-        'targetDt': formatted_date,
-        #'targetDt': 20240122
+        #'targetDt': formatted_date,
+        #'targetDt': 20240123
+        'targetDt': 20130101
     }
     response = requests.get(boxoffice_url, params=boxoffice_params)
+
+    #오늘 박스오피스 정보가 비어있으면 어제
     return response.json()
     # movies_data = response.json()
     # return Response(movies_data)
