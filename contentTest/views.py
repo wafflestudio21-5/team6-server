@@ -209,7 +209,7 @@ class ImportBoxOffice(generics.ListCreateAPIView):
         data = []
         boxoffice_movies = []
         today = datetime.today()
-        today -= timedelta(20)
+        #today -= timedelta(20)
         box_office_instance, created = BoxOffice.objects.get_or_create(date=today)
         for entry in boxoffice_ranking:
             movieCD = entry["movieCd"]
@@ -291,7 +291,7 @@ def kobis_movies_detail(request, pk):
 def kobis_box_office():
     #get date
     today = datetime.today()
-    today -= timedelta(20)
+    #today -= timedelta(20)
     formatted_date = today.strftime("%Y%m%d")
     # boxoffice list 불러오기
     boxoffice_url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json'
