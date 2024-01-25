@@ -18,6 +18,7 @@ from decimal import Decimal
 
 class MovieListAPI(generics.ListAPIView):
     serializer_class = MovieListSerializer
+    authentication_classes = [JWTAuthentication, ]
 
     def get_queryset(self, *args, **kwargs):
         if self.request.query_params.get('order'):
@@ -33,6 +34,7 @@ class MovieRetrieveAPI(generics.RetrieveAPIView):
     model = Movie
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
+    authentication_classes = [JWTAuthentication, ]
 
 
 class RatingAPI(generics.ListCreateAPIView):
@@ -66,6 +68,13 @@ class RatingAPI(generics.ListCreateAPIView):
                 movie=movie
             )
 
+            # connect Rating to Comment if exists
+            if Comment.objects.filter(movie=movie, created_by=self.request.user).exists():
+                user_comment = Comment.objects.get(movie=movie, created_by=self.request.user)
+                current_rating = Rating.objects.get(movie=movie, created_by=self.request.user)
+                user_comment.rating = current_rating
+                user_comment.save()
+
 
 class RatingRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RatingSerializer
@@ -77,6 +86,7 @@ class RatingRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
 class CarouselRetrieveAPI(generics.RetrieveAPIView):
     queryset = Carousel.objects.all()
     serializer_class = CarouselSerializer
+    authentication_classes = [JWTAuthentication, ]
 
 
 class StateCreateAPI(generics.CreateAPIView):

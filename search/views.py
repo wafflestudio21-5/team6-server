@@ -4,34 +4,46 @@ from django.db.models import Q
 from waffleAuth.models import WaffleUser
 from content.models import Movie
 from .serializers import *
+from .paginations import *
 
 from rest_framework.generics import ListAPIView
 
+
 class SearchListAPIView(ListAPIView):
+    #pagination_class = SearchPagination
+
+    def get_pagination_class(self):
+        category = self.request.query_params.get('category', 'movie')
+        if category == 'users':
+            return UserSearchPagination
+        else:
+            return MovieSearchPagination
+
+    pagination_class = property(get_pagination_class)
 
     def get_serializer_class(self):
         category = self.request.query_params.get('category', 'movie')
-        if category in ['users']:
-            serializer_class = UserListSerializer
+        if category == 'users':
+            return UserListSerializer
         else:
-            serializer_class = MovieListSerializer
-        return serializer_class
+            return MovieListSerializer
 
     def get_queryset(self):
         category = self.request.query_params.get('category', 'movie')
         query = self.request.query_params.get('query', '')
 
-        if category in ['users']:
+        if category == 'users':
             if query:
                 query_lists = WaffleUser.objects.filter(nickname__icontains=query)
             else:
-                query_lists = WaffleUser.objects.none()
+                queryset = WaffleUser.objects.none()
         else:
             if query:
-                query_lists = Movie.objects.filter(Q(title_ko__icontains=query) | Q(title_original__icontains=query))
+                queryset = Movie.objects.filter(Q(title_ko__icontains=query) | Q(title_original__icontains=query))
             else:
-                query_lists = Movie.objects.none()
-        return query_lists
+                queryset = Movie.objects.none()
+
+        return queryset
 
 
 class KeywordSearchListAPIView(ListAPIView):
