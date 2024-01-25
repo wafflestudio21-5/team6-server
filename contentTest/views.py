@@ -122,7 +122,7 @@ class ImportMovie(generics.ListCreateAPIView):
             'releaseDts': movie_data['openDt'],
         }
         kmdb_response = requests.get(kmdb_url, params=kmdb_params)
-        print(kmdb_response.json())
+        #print(kmdb_response.json())
         kmdb_data = kmdb_response.json()['Data'][0]['Result'][0]
         data['plot'] = kmdb_data['plots']['plot'][0]['plotText']
         data['poster'] = kmdb_data['posters'].split('|')[0]
@@ -223,7 +223,7 @@ class ImportBoxOffice(generics.ListCreateAPIView):
             #    serializer = self.serializer_class(movie)
             #    data.append(serializer.data)
             movie_rank = entry["rank"]
-            print("\nmovie:", movie)
+            #print("\nmovie:", movie)
             bom, created = BoxOfficeMovie.objects.update_or_create(
                 box_office=box_office_instance,
                 movie=movie,
