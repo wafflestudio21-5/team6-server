@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import *
 from content.models import Rating
 from waffleAuth.models import WaffleUser
+from userprofile.serializers import MovieSummarySerializer
 
 
 class WriterSerializer(serializers.ModelSerializer):
@@ -20,6 +21,7 @@ class CommentRatingSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     created_by = WriterSerializer(read_only=True)
     rating = CommentRatingSerializer(read_only=True)
+    movie = MovieSummarySerializer(read_only=True)
     like_count = serializers.SerializerMethodField()
     liked_by_user = serializers.SerializerMethodField()
     reply_count = serializers.SerializerMethodField()
