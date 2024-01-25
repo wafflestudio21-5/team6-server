@@ -126,7 +126,7 @@ class KakaoUnlinkUserView(UserMyPageDeleteView):
         kakao_refresh_response_content = kakao_refresh_response.content  # Get the JSON string from the response
         kakao_refresh_response_json = json.loads(
             kakao_refresh_response_content)  # Deserialize the JSON string into a Python dictionary
-        #print("\nkakao_refresh_response_json:", kakao_refresh_response_json)
+        print("\nkakao_refresh_response_json:", kakao_refresh_response_json)
         kakao_access_token = kakao_refresh_response_json.get("access_token")
 
         if not kakao_access_token:

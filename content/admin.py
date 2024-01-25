@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Genre, Rating, Movie, Role, People, State, Carousel
+from .models import *
 from django.db.models import ManyToManyField
 from django.forms import CheckboxSelectMultiple
 
@@ -63,3 +63,5 @@ admin.site.register(Rating)
 admin.site.register(Role)
 admin.site.register(State)
 admin.site.register(Carousel, CarouselAdmin)
+admin.site.register(BoxOffice)
+admin.site.register(BoxOfficeMovie)

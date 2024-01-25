@@ -191,8 +191,8 @@ def kakao_callback(request):
 
     access_token = token_response_json.get("access_token")
     kakao_refresh_token = token_response_json.get("refresh_token")
-    print("kakao_access: ", access_token)
-    print("kakao_refresh: ", kakao_refresh_token)
+    #print("kakao_access: ", access_token)
+    #print("kakao_refresh: ", kakao_refresh_token)
 
     # access token으로 카카오톡 프로필 요청
     profile_request = requests.post(
