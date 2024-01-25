@@ -48,6 +48,7 @@ class PeopleAdmin(admin.ModelAdmin):
     formfield_overrides = {
         ManyToManyField: {"widget": CheckboxSelectMultiple}
     }
+    search_fields = ['name']
 
 
 class CarouselAdmin(admin.ModelAdmin):
