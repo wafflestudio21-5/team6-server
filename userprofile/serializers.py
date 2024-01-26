@@ -57,8 +57,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.nickname = validated_data.get('nickname', instance.nickname)
         instance.bio = validated_data.get('bio', instance.bio)
-        instance.profile_photo = validated_data.get('profile_photo', instance.profile_photo)
-        instance.background_photo = validated_data.get('background_photo', instance.background_photo)
+        #instance.profile_photo = validated_data.get('profile_photo', instance.profile_photo)
+        #instance.background_photo = validated_data.get('background_photo', instance.background_photo)
         instance.save()
         return instance
 
