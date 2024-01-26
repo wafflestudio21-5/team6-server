@@ -9,6 +9,7 @@ from allauth.utils import get_username_max_length
 from allauth.account.adapter import get_adapter
 from dj_rest_auth.registration.serializers import RegisterSerializer
 
+
 User = get_user_model()
 
 
@@ -66,8 +67,17 @@ class CustomRegisterSerializer(RegisterSerializer):
     def custom_signup(self, request, user):
         pass
 
+
+
     def validate_nickname(self, nickname):
-        nickname = get_adapter().clean_username(nickname)
+        # Length Check
+        min_length = 3
+        if len(nickname) < min_length:
+            raise DjangoValidationError(f'Nickname must be at least {min_length} characters long.')
+
+        # Character Check (for example, only letters and numbers)
+        #if not nickname.isalnum():
+        #    raise DjangoValidationError('Nickname must contain only letters and numbers.')
         return nickname
 
     def get_cleaned_data(self):

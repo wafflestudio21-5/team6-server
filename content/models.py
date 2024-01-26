@@ -18,6 +18,8 @@ class Movie(models.Model):
         return self.title_ko
 
 
+
+
 class Genre(models.Model):
     genre = models.CharField(max_length=50)
     movies = models.ManyToManyField(
@@ -107,3 +109,28 @@ class Carousel(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class BoxOffice(models.Model):
+    date = models.DateField(null=True)
+    movies = models.ManyToManyField('Movie', through='BoxOfficeMovie')
+
+    class Meta:
+        db_table = 'new_box_office'
+
+class BoxOfficeMovie(models.Model):
+    box_office = models.ForeignKey(BoxOffice, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    rank = models.IntegerField()
+
+    class Meta:
+        db_table = 'new_box_office_movie'
+        unique_together = [
+            ('box_office', 'movie'),
+            ('box_office', 'rank'),
+        ]
+
+        constraints = [
+            models.CheckConstraint(check=models.Q(rank__gte=1), name='boxoffice_rank_gte_1'),
+            models.CheckConstraint(check=models.Q(rank__lte=10), name='boxoffice_rank_lte_10'),
+        ]

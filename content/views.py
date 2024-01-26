@@ -116,7 +116,7 @@ class StateCreateAPI(generics.CreateAPIView):
         )
 
 
-class StateUpdateAPI(generics.UpdateAPIView):
+class StateRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = StateSerializer
     queryset = State.objects.all()
     authentication_classes = [JWTAuthentication, ]

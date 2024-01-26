@@ -126,7 +126,7 @@ class KakaoUnlinkUserView(UserMyPageDeleteView):
         kakao_refresh_response_content = kakao_refresh_response.content  # Get the JSON string from the response
         kakao_refresh_response_json = json.loads(
             kakao_refresh_response_content)  # Deserialize the JSON string into a Python dictionary
-        #print("\nkakao_refresh_response_json:", kakao_refresh_response_json)
+        print("\nkakao_refresh_response_json:", kakao_refresh_response_json)
         kakao_access_token = kakao_refresh_response_json.get("access_token")
 
         if not kakao_access_token:
@@ -274,15 +274,15 @@ class UserCommentsListView(ListAPIView):
             'low-rating': 'rate_count',
             'created': '-created_at'
         }
-        order_option = self.request.query_params.get('order')
+        order_option = self.request.query_params.get('order', 'like')
 
         queryset = Comment.objects.filter(created_by_id=user_id).annotate(
             like_count=Count('likes'),
-            reply_count=Count('replies'),
+            #reply_count=Count('replies'),
             rate_count=F('rating__rate')
         )
 
-        queryset = queryset.order_by(order_options['like'])
+        #queryset = queryset.order_by(order_options['like'])
 
         if order_option in order_options:
             if order_option in ['high-rating', 'low-rating']:

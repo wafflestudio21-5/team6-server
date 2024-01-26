@@ -34,7 +34,7 @@ class SearchListAPIView(ListAPIView):
 
         if category == 'users':
             if query:
-                queryset = WaffleUser.objects.filter(username__icontains=query)
+                queryset = WaffleUser.objects.filter(nickname__icontains=query)
             else:
                 queryset = WaffleUser.objects.none()
         else:
