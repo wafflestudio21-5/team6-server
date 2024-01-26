@@ -206,33 +206,41 @@ class ImportBoxOffice(generics.ListCreateAPIView):
     def get(self, request, *args, **kwargs):
         response_json = kobis_box_office()
         boxoffice_ranking = response_json["boxOfficeResult"]["dailyBoxOfficeList"]
-        data = []
-        boxoffice_movies = []
         today = datetime.today()
-        #today -= timedelta(20)
-        box_office_instance, created = BoxOffice.objects.get_or_create(date=today)
-        for entry in boxoffice_ranking:
-            movieCD = entry["movieCd"]
-            if not Movie.objects.filter(movieCD=movieCD).exists():
-                return redirect('import-movie', pk=movieCD)
-            else:
-                movie = Movie.objects.filter(movieCD=movieCD).get()
-                #boxoffice_movies.append
 
-            #if movie:
-            #    serializer = self.serializer_class(movie)
-            #    data.append(serializer.data)
-            movie_rank = entry["rank"]
-            #print("\nmovie:", movie)
-            bom, created = BoxOfficeMovie.objects.update_or_create(
-                box_office=box_office_instance,
-                movie=movie,
-                defaults={
-                    'rank': movie_rank,
-                }
-            )
-            serializer = BoxOfficeMovieSerializer(bom)
-            data.append(serializer.data)
+        yesterday = today - timedelta(1)
+        data = []
+        if not boxoffice_ranking:
+            box_office_instance= BoxOffice.objects.get(date=yesterday)
+            box_office_movies = BoxOfficeMovie.objects.filter(box_office=box_office_instance)
+
+            for bom in box_office_movies:
+                serializer = BoxOfficeMovieSerializer(bom)
+                data.append(serializer.data)
+        else:
+            box_office_instance, created = BoxOffice.objects.get_or_create(date=today)
+
+            for entry in boxoffice_ranking:
+                movieCD = entry["movieCd"]
+                if not Movie.objects.filter(movieCD=movieCD).exists():
+                    return redirect('import-movie', pk=movieCD)
+                else:
+                    movie = Movie.objects.filter(movieCD=movieCD).get()
+
+                #if movie:
+                #    serializer = self.serializer_class(movie)
+                #    data.append(serializer.data)
+                movie_rank = entry["rank"]
+                #print("\nmovie:", movie)
+                bom, created = BoxOfficeMovie.objects.update_or_create(
+                    box_office=box_office_instance,
+                    movie=movie,
+                    defaults={
+                        'rank': movie_rank,
+                    }
+                )
+                serializer = BoxOfficeMovieSerializer(bom)
+                data.append(serializer.data)
 
         return Response(data)
 
@@ -304,9 +312,9 @@ def kobis_box_office():
     today = datetime.today()
     response_json = fetch_box_office(today)
     #정보 비어있으면 어제
-    if not response_json["boxOfficeResult"]["dailyBoxOfficeList"]:
-        yesterday = today - timedelta(1)
-        response_json = fetch_box_office(yesterday)
+    #if not response_json["boxOfficeResult"]["dailyBoxOfficeList"]:
+    #    yesterday = today - timedelta(1)
+    #    response_json = fetch_box_office(yesterday)
 
     return response_json
 '''
