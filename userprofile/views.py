@@ -18,6 +18,7 @@ import requests
 import os
 import json
 from .paginations import *
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class UserDetailView(RetrieveAPIView):
@@ -28,14 +29,25 @@ class UserDetailView(RetrieveAPIView):
     lookup_field = 'pk'
 
 
+
+
 class UserMyPageDetailView(RetrieveUpdateAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = UserDetailSerializer
+    parser_classes = (MultiPartParser, FormParser)
 
     def get_object(self):
         return self.request.user
 
+    def put(self, request, *args, **kwargs):
+        user = self.request.user
+        serializer = UserDetailSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserMyPageDeleteView(DestroyAPIView, TokenBlacklistView):
     authentication_classes = [JWTAuthentication]
