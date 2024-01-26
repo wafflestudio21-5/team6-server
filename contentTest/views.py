@@ -289,24 +289,26 @@ def kobis_movies_detail(request, pk):
 
 #@api_view(['GET'])
 def kobis_box_office():
-    #get date
-    today = datetime.today()
-    #today -= timedelta(20)
-    formatted_date = today.strftime("%Y%m%d")
-    # boxoffice list 불러오기
-    boxoffice_url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json'
-    boxoffice_params = {
-        'key': KOBIS_API_KEY,
-        'targetDt': formatted_date,
-        #'targetDt': 20240124
-        #'targetDt': 20191101
-    }
-    response = requests.get(boxoffice_url, params=boxoffice_params)
+    def fetch_box_office(date):
+        boxoffice_url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json'
+        boxoffice_params = {
+            'key': KOBIS_API_KEY,
+            'targetDt': date.strftime("%Y%m%d")
+        }
+        response = requests.get(boxoffice_url, params=boxoffice_params)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            response.raise_for_status()
 
-    #오늘 박스오피스 정보가 비어있으면 어제
-    return response.json()
-    # movies_data = response.json()
-    # return Response(movies_data)
+    today = datetime.today()
+    response_json = fetch_box_office(today)
+    #정보 비어있으면 어제
+    if not response_json["boxOfficeResult"]["dailyBoxOfficeList"]:
+        yesterday = today - timedelta(1)
+        response_json = fetch_box_office(yesterday)
+
+    return response_json
 '''
     for movie in movies_data:
         movie_title = movie['movieNm']
