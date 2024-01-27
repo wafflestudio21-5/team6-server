@@ -6,9 +6,9 @@ class WaffleUser(AbstractUser):
     nickname = models.CharField(max_length=20, null= False, blank=True)
     email = models.EmailField(null=True, blank=True)
     bio = models.CharField(max_length=60)
-    profile_photo = models.FileField(upload_to="profile_photos/", null=True, blank=True)
+    profile_photo = models.FileField(upload_to=f"profile_photos/{id}/", null=True, blank=True)
     background_photo = models.FileField(
-        upload_to="background_photos/", null=True, blank=True
+        upload_to=f"background_photos/{id}/", null=True, blank=True
     )
     following = models.ManyToManyField(
         "self", related_name="followers", symmetrical=False
