@@ -83,6 +83,12 @@ class RatingRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOwnerOrReadOnly,]
 
 
+class RatingCountAPI(APIView):
+    def get(self, request, *args, **kwargs):
+        ratings_count = Rating.objects.count()
+        return Response({'ratings_count': ratings_count}, status=status.HTTP_200_OK)
+
+
 class CarouselRetrieveAPI(generics.RetrieveAPIView):
     queryset = Carousel.objects.all()
     serializer_class = CarouselSerializer
@@ -110,7 +116,7 @@ class StateCreateAPI(generics.CreateAPIView):
         )
 
 
-class StateUpdateAPI(generics.UpdateAPIView):
+class StateRetrieveUpdateDestroyAPI(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = StateSerializer
     queryset = State.objects.all()
     authentication_classes = [JWTAuthentication, ]
