@@ -43,6 +43,7 @@ class MovieSerializer(serializers.ModelSerializer):
     my_state = serializers.SerializerMethodField()
     average_rate = serializers.SerializerMethodField()
     my_rate = serializers.SerializerMethodField()
+    rates_count = serializers.SerializerMethodField()
     my_comment = serializers.SerializerMethodField()
 
     class Meta:
@@ -78,6 +79,9 @@ class MovieSerializer(serializers.ModelSerializer):
                 context['my_rate'] = my_rating.rate
                 return context
         return None
+
+    def get_rates_count(self, obj):
+        return Rating.objects.filter(movie=obj).count()
 
     def get_my_comment(self, obj):
         request = self.context.get('request')
