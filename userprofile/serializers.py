@@ -88,8 +88,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.nickname = validated_data.get('nickname', instance.nickname)
         instance.bio = validated_data.get('bio', instance.bio)
-        #instance.profile_photo = validated_data.get('profile_photo', instance.profile_photo)
-        #instance.background_photo = validated_data.get('background_photo', instance.background_photo)
+        instance.profile_photo = validated_data.get('profile_photo', instance.profile_photo)
+        instance.background_photo = validated_data.get('background_photo', instance.background_photo)
         instance.save()
         return instance
 
@@ -110,7 +110,7 @@ class UserDeleteSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    likes_count = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()
     reply_count = serializers.SerializerMethodField()
     created_by = UserSummarySerializer()
     movie = MovieSummarySerializer()
@@ -119,11 +119,11 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = [
             'id', 'created_by', 'movie', 'content', 'rating', 'created_at',
-            'updated_at', 'likes_count', 'reply_count'
+            'updated_at', 'like_count', 'reply_count'
         ]
         depth = 1 #영화 정보 보여주기
 
-    def get_likes_count(self, obj):
+    def get_like_count(self, obj):
         return obj.likes.count()
 
     def get_reply_count(self, obj):
