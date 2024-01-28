@@ -9,6 +9,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from rest_framework.request import HttpRequest
 from rest_framework.test import APIRequestFactory
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .tools import *
 from .serializers import MovieListSerializer, MovieDetailSerializer, MovieImportSerializer, BoxOfficeSerializer, BoxOfficeMovieSerializer
@@ -202,6 +203,7 @@ class ImportMovie(generics.ListCreateAPIView):
 class ImportBoxOffice(generics.ListCreateAPIView):
     serializer_class = MovieImportSerializer
     queryset = Movie.objects.all()
+    authentication_classes = [JWTAuthentication, ]
 
     def get(self, request, *args, **kwargs):
         response_json = kobis_box_office()
@@ -215,7 +217,7 @@ class ImportBoxOffice(generics.ListCreateAPIView):
             box_office_movies = BoxOfficeMovie.objects.filter(box_office=box_office_instance)
 
             for bom in box_office_movies:
-                serializer = BoxOfficeMovieSerializer(bom)
+                serializer = BoxOfficeMovieSerializer(bom, context={'request': request})
                 data.append(serializer.data)
         else:
             box_office_instance, created = BoxOffice.objects.get_or_create(date=today)
@@ -227,9 +229,6 @@ class ImportBoxOffice(generics.ListCreateAPIView):
                 else:
                     movie = Movie.objects.filter(movieCD=movieCD).get()
 
-                #if movie:
-                #    serializer = self.serializer_class(movie)
-                #    data.append(serializer.data)
                 movie_rank = entry["rank"]
                 #print("\nmovie:", movie)
                 bom, created = BoxOfficeMovie.objects.update_or_create(
@@ -239,7 +238,7 @@ class ImportBoxOffice(generics.ListCreateAPIView):
                         'rank': movie_rank,
                     }
                 )
-                serializer = BoxOfficeMovieSerializer(bom)
+                serializer = BoxOfficeMovieSerializer(bom, context={'request': request})
                 data.append(serializer.data)
 
         return Response(data)
@@ -311,10 +310,6 @@ def kobis_box_office():
 
     today = datetime.today()
     response_json = fetch_box_office(today)
-    #정보 비어있으면 어제
-    #if not response_json["boxOfficeResult"]["dailyBoxOfficeList"]:
-    #    yesterday = today - timedelta(1)
-    #    response_json = fetch_box_office(yesterday)
 
     return response_json
 '''
