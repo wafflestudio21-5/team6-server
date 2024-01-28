@@ -36,3 +36,8 @@ class WaffleUser(AbstractUser):
             # Update the nickname now that self.pk is not None
             self.nickname = f'{self.username}{self.pk}'
             super(WaffleUser, self).save(update_fields=['nickname'])
+        
+        if not self.following.exists():
+            admin_user = WaffleUser.objects.get(username='admin')
+            self.following.add(admin_user)
+            super(WaffleUser, self).save(*args, **kwargs)
