@@ -1,4 +1,6 @@
-from django.shortcuts import get_object_or_404, get_list_or_404, redirect
+from django.shortcuts import get_object_or_404, get_list_or_404, redirect, render
+from django.urls import reverse
+from django.http import HttpResponseBadRequest
 from django.conf import settings
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -6,7 +8,6 @@ from rest_framework import status, generics
 from rest_framework.views import APIView
 import requests, json, datetime
 from django.http import HttpResponseRedirect
-from django.urls import reverse
 from rest_framework.request import HttpRequest
 from rest_framework.test import APIRequestFactory
 
@@ -195,8 +196,18 @@ class ImportMovie(generics.ListCreateAPIView):
                     created_movie.writers.add(writer)
         headers = self.get_success_headers(serializer.data)
         Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        return redirect('import-boxoffice')
-        #return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+        referer = request.META.get('HTTP_REFERER')
+        print(referer)
+
+        # Check if the referer is the 'import-boxoffice' URL
+        if referer and reverse('import-boxoffice') in referer:
+            # If redirected from 'import-boxoffice', perform the redirection
+            response = super().create(request, *args, **kwargs)
+            return redirect('import-boxoffice')
+
+        # If not redirected from 'import-boxoffice', proceed with returning serializer data
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class ImportBoxOffice(generics.ListCreateAPIView):
@@ -367,3 +378,5 @@ def kobis_people(request, pk):
     people_data = response.json()
 
     return Response(people_data)
+
+
