@@ -55,6 +55,7 @@ class UserImageDetailSerializer(serializers.ModelSerializer):
                   'comment_num', 'rate_num', 'liked_comment_num']
         read_only_fields = ['username', 'nickname', 'bio']
 
+
     def update(self, instance, validated_data):
         #instance.nickname = validated_data.get('nickname', instance.nickname)
         #instance.bio = validated_data.get('bio', instance.bio)

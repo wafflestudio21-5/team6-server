@@ -49,12 +49,12 @@ class UserMyPageImageDetailView(RetrieveUpdateAPIView):
 
     def get_object(self):
         #user = WaffleUser.objects.get(pk=2)
-        #return user
         return self.request.user
 
     def put(self, request, *args, **kwargs):
         user = self.request.user
         #user = WaffleUser.objects.get(pk=2)
+
         serializer = UserImageDetailSerializer(user, data=request.data)
         if serializer.is_valid():
             serializer.save()
