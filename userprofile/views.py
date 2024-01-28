@@ -5,7 +5,7 @@ from comment.models import Comment, Like
 from django.db.models import Count, F
 # Create your views here.
 from rest_framework.generics import RetrieveAPIView, ListAPIView, DestroyAPIView, RetrieveUpdateAPIView
-from .serializers import StateSerializer, UserRatingSerializer, CommentSerializer, UserDetailSerializer, UserSerializer, UserDeleteSerializer
+from .serializers import StateSerializer, UserRatingSerializer, CommentSerializer, UserDetailSerializer, UserSerializer, UserDeleteSerializer, UserImageDetailSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import action
@@ -18,6 +18,8 @@ import requests
 import os
 import json
 from .paginations import *
+from django.shortcuts import get_object_or_404, get_list_or_404, redirect
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class UserDetailView(RetrieveAPIView):
@@ -32,9 +34,31 @@ class UserMyPageDetailView(RetrieveUpdateAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = UserDetailSerializer
+    #parser_classes = (MultiPartParser, FormParser)
 
     def get_object(self):
+        #user = WaffleUser.objects.filter(pk=2)
         return self.request.user
+
+
+class UserMyPageImageDetailView(RetrieveUpdateAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserImageDetailSerializer
+    parser_classes = (MultiPartParser, FormParser)
+
+    def get_object(self):
+        #user = WaffleUser.objects.filter(pk=2)
+        return self.request.user
+
+    def put(self, request, *args, **kwargs):
+        user = self.request.user
+        serializer = UserImageDetailSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserMyPageDeleteView(DestroyAPIView, TokenBlacklistView):
