@@ -18,7 +18,7 @@ import requests
 import os
 import json
 from .paginations import *
-
+from django.shortcuts import get_object_or_404, get_list_or_404, redirect
 
 class UserDetailView(RetrieveAPIView):
     #authentication_classes = [JWTAuthentication]
@@ -99,6 +99,7 @@ class KakaoTokenRefreshView(APIView):
         else:
             return JsonResponse(response.json(), status=response.status_code, safe=False)
 
+
 class KakaoUnlinkUserView(UserMyPageDeleteView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -109,6 +110,7 @@ class KakaoUnlinkUserView(UserMyPageDeleteView):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         return self.perform_destroy(instance)
+
     def perform_destroy(self, instance):
         user = WaffleUser.objects.get(id=self.request.user.id)
         user.delete()
@@ -116,38 +118,38 @@ class KakaoUnlinkUserView(UserMyPageDeleteView):
 
     def post(self, request, *args, **kwargs):
         user = request.user
-        #token = request.auth
-        kakao_refresh_token = request.COOKIES.get('kakao_refresh_token')
-        token_refresh_view = KakaoTokenRefreshView()
-        token_refresh_view.request = request
-        token_refresh_view.args = args
-        token_refresh_view.kwargs = kwargs
-        kakao_refresh_response = token_refresh_view.get(request, *args, **kwargs)
-        kakao_refresh_response_content = kakao_refresh_response.content  # Get the JSON string from the response
-        kakao_refresh_response_json = json.loads(
-            kakao_refresh_response_content)  # Deserialize the JSON string into a Python dictionary
-        print("\nkakao_refresh_response_json:", kakao_refresh_response_json)
-        kakao_access_token = kakao_refresh_response_json.get("access_token")
+        if request.COOKIES.get('kakao_refresh_token'):
+            token_refresh_view = KakaoTokenRefreshView()
+            token_refresh_view.request = request
+            token_refresh_view.args = args
+            token_refresh_view.kwargs = kwargs
+            kakao_refresh_response = token_refresh_view.get(request, *args, **kwargs)
+            kakao_refresh_response_content = kakao_refresh_response.content  # Get the JSON string from the response
+            kakao_refresh_response_json = json.loads(
+                kakao_refresh_response_content)  # Deserialize the JSON string into a Python dictionary
+            print("\nkakao_refresh_response_json:", kakao_refresh_response_json)
+            kakao_access_token = kakao_refresh_response_json.get("access_token")
 
-        if not kakao_access_token:
-            return Response({"error": "Token is missing or invalid"}, status=401)
+            if not kakao_access_token:
+                return Response({"error": "Token is missing or invalid"}, status=401)
 
-        #print("\ntoken: ", kakao_access_token)
-        headers = {
-            "Authorization":f"Bearer {kakao_access_token}",
-            #"Content-Type": "application/x-www-form-urlencoded",
-        }
+            #print("\ntoken: ", kakao_access_token)
+            headers = {
+                "Authorization":f"Bearer {kakao_access_token}",
+                #"Content-Type": "application/x-www-form-urlencoded",
+            }
 
-        url = "https://kapi.kakao.com/v1/user/unlink"
-        response = requests.post(url, headers=headers)
+            url = "https://kapi.kakao.com/v1/user/unlink"
+            response = requests.post(url, headers=headers)
+            if response.status_code != 200:
+                return JsonResponse(response.json(), status=response.status_code, safe=False)
+            else:
 
-        if response.status_code != 200:
-            return JsonResponse(response.json(), status=response.status_code, safe=False)
+                super().post(request, *args, **kwargs)
+                return JsonResponse(response.json(), status=response.status_code, safe=False)
         else:
+            return super().post(request, *args, **kwargs)
 
-            super().post(request, *args, **kwargs)
-            return JsonResponse(response.json(), status=response.status_code, safe=False)
-          
 
 class AddFollowView(APIView):
     authentication_classes = [JWTAuthentication]
