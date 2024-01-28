@@ -48,11 +48,13 @@ class UserMyPageImageDetailView(RetrieveUpdateAPIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def get_object(self):
-        #user = WaffleUser.objects.filter(pk=2)
+        #user = WaffleUser.objects.get(pk=2)
+        #return user
         return self.request.user
 
     def put(self, request, *args, **kwargs):
         user = self.request.user
+        #user = WaffleUser.objects.get(pk=2)
         serializer = UserImageDetailSerializer(user, data=request.data)
         if serializer.is_valid():
             serializer.save()
