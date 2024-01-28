@@ -206,33 +206,41 @@ class ImportBoxOffice(generics.ListCreateAPIView):
     def get(self, request, *args, **kwargs):
         response_json = kobis_box_office()
         boxoffice_ranking = response_json["boxOfficeResult"]["dailyBoxOfficeList"]
-        data = []
-        boxoffice_movies = []
         today = datetime.today()
-        #today -= timedelta(20)
-        box_office_instance, created = BoxOffice.objects.get_or_create(date=today)
-        for entry in boxoffice_ranking:
-            movieCD = entry["movieCd"]
-            if not Movie.objects.filter(movieCD=movieCD).exists():
-                return redirect('import-movie', pk=movieCD)
-            else:
-                movie = Movie.objects.filter(movieCD=movieCD).get()
-                #boxoffice_movies.append
 
-            #if movie:
-            #    serializer = self.serializer_class(movie)
-            #    data.append(serializer.data)
-            movie_rank = entry["rank"]
-            #print("\nmovie:", movie)
-            bom, created = BoxOfficeMovie.objects.update_or_create(
-                box_office=box_office_instance,
-                movie=movie,
-                defaults={
-                    'rank': movie_rank,
-                }
-            )
-            serializer = BoxOfficeMovieSerializer(bom)
-            data.append(serializer.data)
+        yesterday = today - timedelta(1)
+        data = []
+        if not boxoffice_ranking:
+            box_office_instance= BoxOffice.objects.get(date=yesterday)
+            box_office_movies = BoxOfficeMovie.objects.filter(box_office=box_office_instance)
+
+            for bom in box_office_movies:
+                serializer = BoxOfficeMovieSerializer(bom)
+                data.append(serializer.data)
+        else:
+            box_office_instance, created = BoxOffice.objects.get_or_create(date=today)
+
+            for entry in boxoffice_ranking:
+                movieCD = entry["movieCd"]
+                if not Movie.objects.filter(movieCD=movieCD).exists():
+                    return redirect('import-movie', pk=movieCD)
+                else:
+                    movie = Movie.objects.filter(movieCD=movieCD).get()
+
+                #if movie:
+                #    serializer = self.serializer_class(movie)
+                #    data.append(serializer.data)
+                movie_rank = entry["rank"]
+                #print("\nmovie:", movie)
+                bom, created = BoxOfficeMovie.objects.update_or_create(
+                    box_office=box_office_instance,
+                    movie=movie,
+                    defaults={
+                        'rank': movie_rank,
+                    }
+                )
+                serializer = BoxOfficeMovieSerializer(bom)
+                data.append(serializer.data)
 
         return Response(data)
 
@@ -289,24 +297,26 @@ def kobis_movies_detail(request, pk):
 
 #@api_view(['GET'])
 def kobis_box_office():
-    #get date
-    today = datetime.today()
-    #today -= timedelta(20)
-    formatted_date = today.strftime("%Y%m%d")
-    # boxoffice list 불러오기
-    boxoffice_url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json'
-    boxoffice_params = {
-        'key': KOBIS_API_KEY,
-        'targetDt': formatted_date,
-        #'targetDt': 20240124
-        #'targetDt': 20191101
-    }
-    response = requests.get(boxoffice_url, params=boxoffice_params)
+    def fetch_box_office(date):
+        boxoffice_url = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json'
+        boxoffice_params = {
+            'key': KOBIS_API_KEY,
+            'targetDt': date.strftime("%Y%m%d")
+        }
+        response = requests.get(boxoffice_url, params=boxoffice_params)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            response.raise_for_status()
 
-    #오늘 박스오피스 정보가 비어있으면 어제
-    return response.json()
-    # movies_data = response.json()
-    # return Response(movies_data)
+    today = datetime.today()
+    response_json = fetch_box_office(today)
+    #정보 비어있으면 어제
+    #if not response_json["boxOfficeResult"]["dailyBoxOfficeList"]:
+    #    yesterday = today - timedelta(1)
+    #    response_json = fetch_box_office(yesterday)
+
+    return response_json
 '''
     for movie in movies_data:
         movie_title = movie['movieNm']
