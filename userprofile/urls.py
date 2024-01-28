@@ -7,6 +7,7 @@ from .views import *
 urlpatterns = [
     path('mypage/', UserMyPageDetailView.as_view(), name='user-detail'),
     path('mypage/delete/', UserMyPageDeleteView.as_view(), name='user-delete'),
+    path('mypage/image_update/', UserMyPageImageDetailView.as_view(), name='user-image-update'),
     path('mypage/likes/comments/', UserLikedCommentsListView.as_view(), name='user-liked-comments'),
     path('mypage/delete/kakao_unlink/', KakaoUnlinkUserView.as_view(), name='kakao_unlink'),
     path('mypage/kakao_token_refresh/', KakaoTokenRefreshView.as_view(), name='kakao_token_refresh'),

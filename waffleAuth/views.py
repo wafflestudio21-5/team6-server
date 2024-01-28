@@ -60,7 +60,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 domain=".d1vexdz72u651e.cloudfront.net",
                 max_age=COOKIE_DURATION,
             )
-
+        print(refresh_token)
         return response
 
 
@@ -192,7 +192,7 @@ def kakao_callback(request):
     access_token = token_response_json.get("access_token")
     kakao_refresh_token = token_response_json.get("refresh_token")
     #print("kakao_access: ", access_token)
-    #print("kakao_refresh: ", kakao_refresh_token)
+    print("kakao_refresh: ", kakao_refresh_token)
 
     # access token으로 카카오톡 프로필 요청
     profile_request = requests.post(
