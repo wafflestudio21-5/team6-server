@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import TransmitMovie as TransmitMovie
-from content.models import Movie, BoxOffice, BoxOfficeMovie
+from content.models import Movie, BoxOffice, BoxOfficeMovie, Rating
 from content.serializers import MovieSerializer
 
 
@@ -59,10 +59,20 @@ class BoxOfficeMovieSerializer(serializers.ModelSerializer):
     movie_id = serializers.PrimaryKeyRelatedField(
         queryset=Movie.objects.all(), source='movie', write_only=True
     )
+    my_rate = serializers.SerializerMethodField()
 
     class Meta:
         model = BoxOfficeMovie
-        fields = ['movie', 'movie_id', 'rank']
+        fields = ['movie', 'movie_id', 'my_rate', 'rank']
+
+    def get_my_rate(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            # Use obj.movie to refer to the associated Movie instance
+            if Rating.objects.filter(movie=obj.movie, created_by=request.user).exists():
+                my_rating = Rating.objects.get(movie=obj.movie, created_by=request.user)
+                return my_rating.rate
+        return None
 
 class BoxOfficeSerializer(serializers.ModelSerializer):
     movies = BoxOfficeMovieSerializer(source='boxofficemovie_set', many=True)
