@@ -53,7 +53,7 @@ class UserImageDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'nickname', 'bio', 'profile_photo',
                   'background_photo', 'followers_count', 'following_count',
                   'comment_num', 'rate_num', 'liked_comment_num']
-        read_only_fields = ['nickname', 'bio']
+        read_only_fields = ['username', 'nickname', 'bio']
 
 
     def update(self, instance, validated_data):
