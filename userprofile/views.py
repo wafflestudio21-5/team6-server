@@ -5,7 +5,8 @@ from comment.models import Comment, Like
 from django.db.models import Count, F
 # Create your views here.
 from rest_framework.generics import RetrieveAPIView, ListAPIView, DestroyAPIView, RetrieveUpdateAPIView
-from .serializers import StateSerializer, UserRatingSerializer, CommentSerializer, UserDetailSerializer, UserSerializer, UserDeleteSerializer, UserImageDetailSerializer
+from .serializers import StateSerializer, UserRatingSerializer, UserDetailSerializer, UserSerializer, UserDeleteSerializer, UserImageDetailSerializer
+from comment.serializers import CommentSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import action
