@@ -13,9 +13,9 @@ def background_photo_path(instance, filename):
 
 
 class WaffleUser(AbstractUser):
-    nickname = models.CharField(max_length=20, null= False, blank=True)
+    nickname = models.CharField(max_length=20, null=False, blank=True)
     email = models.EmailField(null=True, blank=True)
-    bio = models.CharField(max_length=60)
+    bio = models.CharField(max_length=60, blank=True)
     profile_photo = models.FileField(upload_to=profile_photo_path, null=True, blank=True)
     background_photo = models.FileField(upload_to=background_photo_path, null=True, blank=True)
     following = models.ManyToManyField(
