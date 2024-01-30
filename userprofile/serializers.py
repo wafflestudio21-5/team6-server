@@ -50,7 +50,7 @@ class UserImageDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WaffleUser
-        fields = ['id', 'username', 'nickname', 'bio', 'profile_photo',
+        fields = ['id', 'nickname', 'bio', 'profile_photo',
                   'background_photo', 'followers_count', 'following_count',
                   'comment_num', 'rate_num', 'liked_comment_num']
         read_only_fields = ['username', 'nickname', 'bio']
@@ -83,7 +83,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WaffleUser
-        fields = ['id', 'username', 'nickname', 'bio', 'profile_photo',
+        fields = ['id', 'nickname', 'bio', 'profile_photo',
                   'background_photo', 'followers_count', 'following_count',
                   'comment_num', 'rate_num', 'liked_comment_num']
 
