@@ -68,7 +68,7 @@ class KMBDRawData(APIView):
             'ServiceKey': KMDB_API_KEY,
             'listCount': "1",
             'title': movie_title,
-            'director': movie_director,
+            'director': '이창동',
         }
         kmdb_response = requests.get(kmdb_url, params=kmdb_params)
         kmdb_data = kmdb_response.json()['Data'][0]['Result'][0]
@@ -119,8 +119,9 @@ class ImportMovie(generics.ListCreateAPIView):
             'ServiceKey': KMDB_API_KEY,
             'listCount': "1",
             'title': data['title_ko'],
-            #'director': movie_data['directors'][0]['peopleNm']
+            # 'director': movie_data['directors'][0]['peopleNm']
             'releaseDts': movie_data['openDt'],
+            # 'releaseDts': ''
         }
         kmdb_response = requests.get(kmdb_url, params=kmdb_params)
         #print(kmdb_response.json())
