@@ -7,10 +7,12 @@ from .serializers import *
 from .paginations import *
 
 from rest_framework.generics import ListAPIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class SearchListAPIView(ListAPIView):
     #pagination_class = SearchPagination
+    authentication_classes = [JWTAuthentication]
 
     def get_pagination_class(self):
         category = self.request.query_params.get('category', 'movie')

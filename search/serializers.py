@@ -34,10 +34,12 @@ class MovieListSerializer(serializers.ModelSerializer):
 class UserListSerializer(serializers.ModelSerializer):
     rate_num = serializers.SerializerMethodField()
     comment_num = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField()
+
     class Meta:
         model = WaffleUser
         fields =[
-            'id', 'username', 'nickname', 'bio', 'profile_photo', 'rate_num', 'comment_num'
+            'id', 'username', 'nickname', 'bio', 'profile_photo', 'rate_num', 'comment_num', 'is_following'
         ]
 
 
@@ -46,3 +48,10 @@ class UserListSerializer(serializers.ModelSerializer):
 
     def get_comment_num(self, obj):
         return Comment.objects.filter(created_by__id=obj.id).count()
+
+    def get_is_following(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            followers = obj.followers.all()
+            return request.user in followers
+        return False
