@@ -80,16 +80,21 @@ FRONTEND 개발에 관해 궁금하다면? [TEAM6-WEB REPO](https://github.com/w
 
 #### 기술 스택
 
-<img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=green"> &nbsp; &nbsp; &nbsp;
-<img src="https://img.shields.io/badge/Amazon EC2-FF9900?style=for-the-badge&logo=Amazon EC2&logoColor=white"> &nbsp; &nbsp; &nbsp;
-<img src="https://img.shields.io/badge/Amazon RDS-527FFF?style=for-the-badge&logo=Amazon RDS&logoColor=white"> &nbsp; &nbsp; &nbsp;
-<img src="https://img.shields.io/badge/Amazon S3-569A31?style=for-the-badge&logo=Amazon S3&logoColor=white"> 
+[![django][django-shield]][django-url]  &nbsp; &nbsp; &nbsp;
+<a href = 'https://aws.amazon.com/ko/ec2/'>
+    <img src="https://img.shields.io/badge/Amazon EC2-FF9900?style=for-the-badge&logo=Amazon EC2&logoColor=white"> &nbsp; &nbsp; &nbsp;
+</a>
+<a href = 'https://aws.amazon.com/ko/rds/'>
+    <img src="https://img.shields.io/badge/Amazon RDS-527FFF?style=for-the-badge&logo=Amazon RDS&logoColor=orange"> &nbsp; &nbsp; &nbsp;
+</a>
+<a href = 'https://aws.amazon.com/ko/s3/'>
+    <img src="https://img.shields.io/badge/Amazon S3-569A31?style=for-the-badge&logo=Amazon S3&logoColor=black"> 
+</a>
 
 #### 협업
 
-<img src="https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=Slack&logoColor=white"> &nbsp; &nbsp; &nbsp;
-<img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=Notion&logoColor=white"> &nbsp; &nbsp; &nbsp;
-
+[![slack][slack-shield]][slack-url]  &nbsp; &nbsp; &nbsp;
+[![notion][notion-shield]][notion-url]  &nbsp; &nbsp; &nbsp;
 <br/>
 
 <!-- Development -->
@@ -98,8 +103,9 @@ FRONTEND 개발에 관해 궁금하다면? [TEAM6-WEB REPO](https://github.com/w
 ### Contributors
 
 #### 인증 | 유저
-<img src="https://img.shields.io/badge/%EC%9D%B4%EB%8B%A4%EC%9D%80-de--yi-blue?style=plastic&link=https%3A%2F%2Fgithub.com%2Fde-yi"> &nbsp; &nbsp;
-<img src="https://img.shields.io/badge/%EA%B0%95%EC%9A%B0%EC%A7%84-woojin--blaze-blue?style=plastic&link=https%3A%2F%2Fgithub.com%2Fwoojin-blaze">
+
+[![deyi][deyi-shield]][deyi-url]  &nbsp; &nbsp; &nbsp;
+[![woojinblaze][woojinblaze-shield]][woojinblaze-url]  &nbsp; &nbsp; &nbsp;
 
 - Json Web Token 이용 유저 인증 구현
 - 소셜 로그인(카카오) 구현
@@ -108,8 +114,9 @@ FRONTEND 개발에 관해 궁금하다면? [TEAM6-WEB REPO](https://github.com/w
 <br/><br/>
 
 #### 컨텐츠 | 게시물
-<img src="https://img.shields.io/badge/%EC%9D%B4%EA%B7%9C%EC%9B%90-civilian38-orange?style=plastic&link=https%3A%2F%2Fgithub.com%2Fcivilian38"> &nbsp; &nbsp;
-<img src="https://img.shields.io/badge/%EB%B0%B1%EC%B0%BD%EC%9D%B8-nuagenic-orange?style=plastic&link=https%3A%2F%2Fgithub.com%2Fnuagenic">
+
+[![nuagenic][nuagenic-shield]][nuagenic-url]  &nbsp; &nbsp; &nbsp;
+[![civilian38][civilian38-shield]][civilian38-url]  &nbsp; &nbsp; &nbsp;
 
 - 모델 설계 및 ERD 작성
 - 주요 기능 CRUD 구현
@@ -184,3 +191,23 @@ FRONTEND 개발에 관해 궁금하다면? [TEAM6-WEB REPO](https://github.com/w
 [pr-url]: https://github.com/wafflestudio21-5/team6-server/pulls
 [cpr-shield]: https://img.shields.io/github/issues-pr-closed/wafflestudio21-5/team6-server?style=for-the-badge&link=https%3A%2F%2Fgithub.com%2Fwafflestudio21-5%2Fteam6-server%2Fpulls%3Fq%3Dis%253Apr%2Bis%253Aclosed
 [cpr-url]: https://github.com/wafflestudio21-5/team6-server/pulls?q=is%3Apr+is%3Aclosed
+[django-shield]: https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=green
+[django-url]: https://www.djangoproject.com/
+[ec2-shield]: "https://img.shields.io/badge/Amazon_EC2-FF9900?style=for-the-badge&logo=Amazon_EC2&logoColor=white"
+[ec2-url]: https://aws.amazon.com/ko/ec2/
+[rds-shield]: https://img.shields.io/badge/Amazon_RDS-527FFF?style=for-the-badge&logo=Amazon_RDS&logoColor=orange
+[rds-url]: https://aws.amazon.com/ko/rds/
+[s3-shield]: https://img.shields.io/badge/Amazon_S3-569A31?style=for-the-badge&logo=Amazon_S3&logoColor=orange
+[s3-url]: https://aws.amazon.com/ko/s3/
+[slack-shield]: https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=Slack&logoColor=white
+[slack-url]: https://slack.com/intl/ko-kr/
+[notion-shield]: https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=Notion&logoColor=white
+[notion-url]: https://www.notion.so/ko-kr
+[deyi-shield]: https://img.shields.io/badge/%EC%9D%B4%EB%8B%A4%EC%9D%80-de--yi-blue?style=plastic&link=https%3A%2F%2Fgithub.com%2Fde-yi
+[deyi-url]: https://github.com/de-yi
+[woojinblaze-shield]: https://img.shields.io/badge/%EA%B0%95%EC%9A%B0%EC%A7%84-woojin--blaze-blue?style=plastic&link=https%3A%2F%2Fgithub.com%2Fwoojin-blaze
+[woojinblaze-url]: https://github.com/woojin-blaze
+[civilian38-shield]: https://img.shields.io/badge/%EC%9D%B4%EA%B7%9C%EC%9B%90-civilian38-orange?style=plastic&link=https%3A%2F%2Fgithub.com%2Fcivilian38
+[civilian38-url]: https://github.com/civilian38
+[nuagenic-shield]: https://img.shields.io/badge/%EB%B0%B1%EC%B0%BD%EC%9D%B8-nuagenic-orange?style=plastic&link=https%3A%2F%2Fgithub.com%2Fnuagenic
+[nuagenic-url]: https://github.com/nuagenic
