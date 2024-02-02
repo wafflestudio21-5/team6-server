@@ -175,6 +175,8 @@ FRONTEND 개발에 관해 궁금하다면? [TEAM6-WEB REPO](https://github.com/w
 <!-- CONTACT -->
 ## Contact
 
+버그 제보는 다음 구글 폼을 통해 받고 있습니다! 많은 참여 부탁드립니다! <br/>
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSd1rREhQ2cB_LWTdKe6OV-6C8jC3X7AcXKRlx5Xw_sm-0Fskg/viewform?usp=sf_link">버그 제보하러 가기</a>
 
 
 <!-- ACKNOWLEDGMENTS -->
