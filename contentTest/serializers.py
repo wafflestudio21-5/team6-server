@@ -64,7 +64,7 @@ class BoxOfficeMovieSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BoxOfficeMovie
-        fields = ['movie', 'movie_id', 'my_rate', 'rank']
+        fields = ['movie', 'movie_id', 'my_rate', 'rank', 'average_rate']
 
     def get_my_rate(self, obj):
         request = self.context.get('request')
