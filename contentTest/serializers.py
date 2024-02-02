@@ -78,7 +78,7 @@ class BoxOfficeMovieSerializer(serializers.ModelSerializer):
     def get_average_rate(self, obj):
         if Rating.objects.filter(movie=obj.movie).exists():
             return round(
-                sum(map(lambda x: x.rate, Rating.objects.filter(movie=obj))) / len(Rating.objects.filter(movie=obj)), 1)
+                sum(map(lambda x: x.rate, Rating.objects.filter(movie=obj.movie))) / len(Rating.objects.filter(movie=obj.movie)), 1)
         return None
 
 
