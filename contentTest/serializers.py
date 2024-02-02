@@ -60,7 +60,6 @@ class BoxOfficeMovieSerializer(serializers.ModelSerializer):
         queryset=Movie.objects.all(), source='movie', write_only=True
     )
     my_rate = serializers.SerializerMethodField()
-    average_rate = serializers.SerializerMethodField()
 
     class Meta:
         model = BoxOfficeMovie
@@ -74,13 +73,6 @@ class BoxOfficeMovieSerializer(serializers.ModelSerializer):
                 my_rating = Rating.objects.get(movie=obj.movie, created_by=request.user)
                 return my_rating.rate
         return None
-
-    def get_average_rate(self, obj):
-        if Rating.objects.filter(movie=obj).exists():
-            return round(
-                sum(map(lambda x: x.rate, Rating.objects.filter(movie=obj))) / len(Rating.objects.filter(movie=obj)), 1)
-        return None
-
 
 class BoxOfficeSerializer(serializers.ModelSerializer):
     movies = BoxOfficeMovieSerializer(source='boxofficemovie_set', many=True)

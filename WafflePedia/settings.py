@@ -182,7 +182,7 @@ AUTHENTICATION_BACKENDS = (
 
 # AUTH/simple jwt
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=2),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=3),
     "SIGNING_KEY": os.environ.get("SIMPLE_JWT_SIGNING_KEY", default=SECRET_KEY),
     "ROTATE_REFRESH_TOKENS": True,
